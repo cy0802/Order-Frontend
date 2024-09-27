@@ -8,8 +8,8 @@
         <v-tab 
           v-for="category in products" 
           :key="category.category_id"
-          :text="category.category"
-        ></v-tab>
+          :value="category.category_id"
+        >{{ category.category }}</v-tab>
       </v-tabs>
       <v-window v-model="tab">
         <v-window-item 
@@ -19,11 +19,21 @@
         >
           <ProductList 
             :products="category.products"
-            @addToCart="addToCart"
+            @addProduct="addProduct"
+            @removeProduct="removeProduct"
           />
         </v-window-item>
       </v-window>
     </v-card>
+    <v-container>
+      <v-btn
+        color="secondary"
+        class="floating-btn"
+      >
+        <v-icon left>mdi-cart</v-icon>
+        查看購物車
+      </v-btn>
+    </v-container>
   </div>
 </template>
 
@@ -65,9 +75,31 @@ export default {
     return { products, tab };
   },
   methods: {
-    addToCart(product) {
-      console.log('Add to cart:', product);
+    addProduct(product_id) {
+      const product = this.products.find(category => category.products.find(product => product.id === product_id));
+      const productIndex = product.products.findIndex(product => product.id === product_id);
+      product.products[productIndex].quantity++;
+    },
+    removeProduct(product_id){
+      const product = this.products.find(category => category.products.find(product => product.id === product_id));
+      const productIndex = product.products.findIndex(product => product.id === product_id);
+      if (product.products[productIndex].quantity > 0) {
+        product.products[productIndex].quantity--;
+      }
     }
   }
 }
 </script>
+<style scoped>
+/* credit to ChatGPT */
+.floating-btn {
+  position: fixed;
+  bottom: 16px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 91vw;
+  height: 50px;
+  z-index: 100; 
+  border-radius: 5px;
+}
+</style>

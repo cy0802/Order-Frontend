@@ -20,7 +20,7 @@ const vuetify = createVuetify({
       light: {
         colors:{
             primary: colors.teal.lighten1,
-            secondary: colors.teal.lighten3,
+            secondary: colors.teal.lighten4,
             accent: colors.red.accent2,
             background: colors.grey.lighten5, // Add a background color if needed
             surface: "#FFFFFF", // Define a surface color for cards, tabs, etc.
