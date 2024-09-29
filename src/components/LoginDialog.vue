@@ -2,7 +2,7 @@
   <v-btn 
     icon
     class="ml-7"
-    @click='dialog = true'
+    @click='activate'
   >
     <v-icon>mdi-login</v-icon>
   </v-btn>
@@ -37,6 +37,7 @@
 
 <script>
 export default {
+  emits: ['login'],
   data() {
     return {
       dialog: false,
@@ -56,6 +57,11 @@ export default {
         this.dialog = false;
       }
     },
+    activate() {
+      this.dialog = true;
+      this.email = '';
+      this.password = '';
+    }
   },
 };
 </script>

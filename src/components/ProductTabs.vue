@@ -25,15 +25,13 @@
         </v-window-item>
       </v-window>
     </v-card>
-    <v-container>
-      <v-btn
-        color="secondary"
-        class="floating-btn"
-      >
-        <v-icon left>mdi-cart</v-icon>
-        查看購物車
-      </v-btn>
-    </v-container>
+    <CartDialog
+      :products="products"
+      :userId="userId"
+      :userToken="userToken"
+      @orderSuccess="orderSuccess"
+      @orderError="orderError"
+    />
   </div>
 </template>
 
@@ -41,16 +39,27 @@
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import ProductList from './ProductList.vue';
+import CartDialog from './CartDialog.vue';
 
 export default {
   name: 'ProductTabs',
   components: {
-    ProductList
+    ProductList,
+    CartDialog
+  },
+  props: {
+    userId: {
+      type: Number,
+      default: null
+    },
+    userToken: {
+      type: String,
+      default: null
+    }
   },
   setup() {
     const products = ref([]);
     const tab = ref(null);
-
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/products');
@@ -86,6 +95,12 @@ export default {
       if (product.products[productIndex].quantity > 0) {
         product.products[productIndex].quantity--;
       }
+    },
+    orderSuccess(msg) {
+      this.$emit('showAlert', 'success', msg);
+    },
+    orderError(msg) {
+      this.$emit('showAlert', 'error', msg);
     }
   }
 }

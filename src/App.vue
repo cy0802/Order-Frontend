@@ -12,19 +12,23 @@
     <v-main>
       <v-container>
         <v-alert
-          v-model="loginError"
-          type="error"
+          v-model="alert"
+          :type="alertType"
           closable
           close-label="關閉"
           class="mb-4"
           variant="tonal"
           border="start"
-          border-color="error"
+          :border-color="alertType"
           elevation="2"
         >
-          帳號或密碼錯誤
+          {{ errorMsg }}
         </v-alert>
-        <ProductTabs />
+        <ProductTabs 
+          :userId="userId"
+          :userToken="accessToken"
+          @showAlert="showAlert"
+        />
       </v-container>
     </v-main>
   </v-app>
@@ -49,7 +53,9 @@ export default {
       userEmail: null,
       accessToken: null,
       admin: null,
-      loginError: false
+      alert: false,
+      errorMsg: null,
+      alertType: 'error'
     };
   },
   methods: {
@@ -68,12 +74,17 @@ export default {
         this.admin = admin;
         this.loggedIn = true;
       } catch (error) {
-        if (error.response.status === 401) {
-          this.loginError = true;
+        if (error.status === 401) {
+          this.showAlert('error', '帳號或密碼錯誤');
         } else {
           console.error(error);
         }
       }
+    },
+    showAlert(type, msg) {
+      this.alert = true;
+      this.errorMsg = msg;
+      this.alertType = type;
     },
     logout() {
       this.userId = null;
