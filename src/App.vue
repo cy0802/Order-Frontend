@@ -11,6 +11,19 @@
     </v-app-bar>
     <v-main>
       <v-container>
+        <v-alert
+          v-model="loginError"
+          type="error"
+          closable
+          close-label="關閉"
+          class="mb-4"
+          variant="tonal"
+          border="start"
+          border-color="error"
+          elevation="2"
+        >
+          帳號或密碼錯誤
+        </v-alert>
         <ProductTabs />
       </v-container>
     </v-main>
@@ -35,12 +48,12 @@ export default {
       userPhone: null,
       userEmail: null,
       accessToken: null,
-      admin: null
+      admin: null,
+      loginError: false
     };
   },
   methods: {
     async login(email, password) {
-      console.log(email, password);
       try {
         const response = await axios.post('http://localhost:8000/api/login', {
           email: email,
@@ -55,7 +68,11 @@ export default {
         this.admin = admin;
         this.loggedIn = true;
       } catch (error) {
-        console.error(error);
+        if (error.response.status === 401) {
+          this.loginError = true;
+        } else {
+          console.error(error);
+        }
       }
     },
     logout() {

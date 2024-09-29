@@ -24,7 +24,7 @@ const vuetify = createVuetify({
             accent: colors.red.accent2,
             background: colors.grey.lighten5, // Add a background color if needed
             surface: "#FFFFFF", // Define a surface color for cards, tabs, etc.
-            error: colors.red.darken2,
+            error: colors.red.lighten1,
             info: colors.blue.lighten1,
             success: colors.green.lighten1,
             warning: colors.amber.darken1
