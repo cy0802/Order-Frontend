@@ -1,13 +1,41 @@
 <template>
   <v-app>
     <v-app-bar app color="primary">
-      <v-app-bar-title>王品集團</v-app-bar-title>
+      <v-app-bar-title @click="goToIndex">王品集團</v-app-bar-title>
       <v-spacer></v-spacer>
       <LoginDialog 
         @login="login"
         v-if="!loggedIn"
       />
-      <p v-if="loggedIn" class="mr-7">Hi, {{ userName }}</p>
+      <v-menu v-if="loggedIn">
+        <template v-slot:activator="{ props }">
+          <v-btn icon v-bind="props" variant="text">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-card min-width="200">
+          <v-list>
+            <v-list-item>
+              Hi, {{ userName }}
+            </v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item @click="logout">
+              <v-icon class='mr-2'>mdi-logout</v-icon>
+              登出
+            </v-list-item>
+            <v-list-item @click="goToIndex">
+              <v-icon class="mr-2">mdi-home</v-icon>
+              回首頁
+            </v-list-item>
+            <v-list-item @click="showHistory">
+              <v-icon class="mr-2">mdi-history</v-icon>
+              歷史訂單
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -25,7 +53,13 @@
           {{ errorMsg }}
         </v-alert>
         <ProductTabs 
+          v-if="page === 'product'"
           :userId="userId"
+          :userToken="accessToken"
+          @showAlert="showAlert"
+        />
+        <HistoryPage
+          v-if="page === 'history'"
           :userToken="accessToken"
           @showAlert="showAlert"
         />
@@ -37,12 +71,14 @@
 <script>
 import ProductTabs from './components/ProductTabs.vue';
 import LoginDialog from './components/LoginDialog.vue';
+import HistoryPage from './components/HistoryPage.vue';
 import axios from 'axios';
 export default {
   name: 'App',
   components: {
     ProductTabs,
-    LoginDialog
+    LoginDialog,
+    HistoryPage
   },
   data() {
     return {
@@ -55,8 +91,21 @@ export default {
       admin: null,
       alert: false,
       errorMsg: null,
-      alertType: 'error'
+      alertType: 'error',
+      menu: false,
+      page: 'product'
     };
+  },
+  created() {
+    if (localStorage.getItem('accessToken')) {
+      this.userId = localStorage.getItem('userId');
+      this.userName = localStorage.getItem('userName');
+      this.userPhone = localStorage.getItem('userPhone');
+      this.userEmail = localStorage.getItem('userEmail');
+      this.admin = localStorage.getItem('admin');
+      this.accessToken = localStorage.getItem('accessToken');
+      this.loggedIn = true;
+    }
   },
   methods: {
     async login(email, password) {
@@ -73,6 +122,12 @@ export default {
         this.accessToken = token;
         this.admin = admin;
         this.loggedIn = true;
+        localStorage.setItem('userId', id);
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userEmail', userEmail);
+        localStorage.setItem('userPhone', phone);
+        localStorage.setItem('accessToken', token);
+        localStorage.setItem('admin', admin);
       } catch (error) {
         if (error.status === 401) {
           this.showAlert('error', '帳號或密碼錯誤');
@@ -86,6 +141,9 @@ export default {
       this.errorMsg = msg;
       this.alertType = type;
     },
+    goToIndex() {
+      this.page = 'product';
+    },
     logout() {
       this.userId = null;
       this.userName = null;
@@ -94,6 +152,17 @@ export default {
       this.admin = null;
       this.loggedIn = false;
       this.accessToken = null;
+      this.page = 'product';
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userPhone');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('admin');
+      localStorage.removeItem('accessToken');
+      this.showAlert('info', '已登出');
+    },
+    showHistory() {
+      this.page = 'history';
     }
   }
 }
