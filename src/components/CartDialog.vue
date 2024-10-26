@@ -9,17 +9,6 @@
   </v-btn>
   <v-dialog v-model="dialog" max-width="600px">
     <v-card>
-      <v-alert
-        v-model="notLoggedIn"
-        type="error"
-        variant="tonal"
-        border="start"
-        border-color="error"
-        elevation="2"
-        class="ma-7"
-      >
-        請先登入再進行訂購
-      </v-alert>
       <v-card-title class="mt-2 ml-2">您的商品</v-card-title>
       <v-card-text>
         <p v-if="selectedItems.length === 0" class="ml-2">您的購物車中沒有商品</p>
@@ -34,6 +23,14 @@
           </v-list-item>
         </v-list>
         <p v-if="selectedItems.length > 0" class="ml-2">共 $ {{ totalPrice }}</p>
+        <!-- TODO: Memorize maximum table id -->
+        <v-combobox
+          label="您的桌號"
+          :items="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+          v-model="tableId"
+          variant="outlined"
+          class="mt-4 ml-2"
+        ></v-combobox>
       </v-card-text>
       <v-card-actions class="mb-3 mr-3">
         <v-btn 
@@ -47,7 +44,6 @@
           color="success"
           variant="tonal"
           @click="order"
-          v-if="!notLoggedIn"
         >
           送出訂單
         </v-btn>
@@ -65,6 +61,7 @@ const dialog = ref(false);
 const selectedItems = ref([]);
 const totalPrice = ref(0);
 const notLoggedIn = ref(false);
+const tableId = ref(null);
 
 const activate = () => {
   notLoggedIn.value = props.userId === null || props.userToken === null;
@@ -84,10 +81,11 @@ const order = async () => {
   dialog.value = false;
   const orderRequest = {
     user_id: props.userId,
+    table_id: tableId.value,
     order_items: selectedItems.value.map(item => {
       return {
         product_id: item.id,
-        number: item.quantity
+        quantity: item.quantity
       };
     })
   };

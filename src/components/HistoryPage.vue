@@ -13,15 +13,15 @@
                 >
                   <v-list-item-content>
                     <v-list-item-title>訂購時間：{{ formatDate(order.createdAt) }}</v-list-item-title>
-                    <v-list-item-subtitle>總價格：${{ order.price }} / {{ order.paid ? '已結帳' : '尚未付款' }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>總價格：${{ order.price }} / {{ order.paid_state ? '已結帳' : '尚未付款' }}</v-list-item-subtitle>
                     <v-list>
                       <v-list-item
-                        v-for="item in order.Order_Items"
+                        v-for="item in order.Order_Products"
                         :key="item.id"
                       >
                         <v-list-item-content>
-                          <v-list-item-title>{{ item.Product.name }} * {{ item.number }}</v-list-item-title>
-                          <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ item.served ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
+                          <v-list-item-title>{{ item.Product.name }} * {{ item.quantity }}</v-list-item-title>
+                          <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ item.serve_state ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
                           <v-list-item-subtitle></v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
