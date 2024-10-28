@@ -42,7 +42,7 @@
 import axios from 'axios';
 
 export default {
-  inject: ['accessToken'],
+  inject: ['user'],
   data() {
     return {
       orders: [],
@@ -56,7 +56,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:8000/api/orders/history', {
           headers: {
-            Authorization: `Bearer ${this.accessToken}`
+            Authorization: `Bearer ${this.user.value.accessToken}`,
           }
         });
         this.orders = response.data;

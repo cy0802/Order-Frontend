@@ -27,8 +27,8 @@
     </v-card>
     <CartDialog
       :products="products"
-      :userId="userId"
-      :userToken="userToken"
+      :userId="user.userId"
+      :userToken="user.userToken"
       @orderSuccess="orderSuccess"
       @orderError="orderError"
     />
@@ -47,7 +47,7 @@ export default {
     ProductList,
     CartDialog
   },
-  inject: ['userId', 'accessToken'],
+  inject: ['user'],
   setup() {
     const products = ref([]);
     const tab = ref(null);
