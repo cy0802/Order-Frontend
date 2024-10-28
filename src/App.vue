@@ -1,13 +1,13 @@
 <template>
   <v-app>
     <v-app-bar app color="primary">
-      <v-app-bar-title @click="goToIndex">王品集團</v-app-bar-title>
+      <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">王品集團</v-app-bar-title>
       <v-spacer></v-spacer>
       <LoginDialog 
         @login="login"
         v-if="!loggedIn"
       />
-      <v-menu v-if="loggedIn">
+      <v-menu v-if="loggedIn" v-model="menu">
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props" variant="text">
             <v-icon>mdi-dots-vertical</v-icon>
@@ -21,17 +21,15 @@
           </v-list>
           <v-divider></v-divider>
           <v-list>
-            <v-list-item @click="logout">
-              <v-icon class='mr-2'>mdi-logout</v-icon>
-              登出
-            </v-list-item>
-            <v-list-item @click="goToIndex">
-              <v-icon class="mr-2">mdi-home</v-icon>
-              回首頁
-            </v-list-item>
-            <v-list-item @click="showHistory">
-              <v-icon class="mr-2">mdi-history</v-icon>
-              歷史訂單
+            <v-list-item
+              v-for="(item, index) in menuItems"
+              :key="index"
+              @click="handleMenuItemClick(item)"
+            >
+              <v-list-item>
+                <v-icon>{{ item.icon }}</v-icon>
+                {{ item.title }}
+              </v-list-item>
             </v-list-item>
           </v-list>
         </v-card>
@@ -52,15 +50,7 @@
         >
           {{ errorMsg }}
         </v-alert>
-        <ProductTabs 
-          v-if="page === 'product'"
-          :userId="userId"
-          :userToken="accessToken"
-          @showAlert="showAlert"
-        />
-        <HistoryPage
-          v-if="page === 'history'"
-          :userToken="accessToken"
+        <RouterView 
           @showAlert="showAlert"
         />
       </v-container>
@@ -68,102 +58,116 @@
   </v-app>
 </template>
 
-<script>
-import ProductTabs from './components/ProductTabs.vue';
+<script setup>
 import LoginDialog from './components/LoginDialog.vue';
-import HistoryPage from './components/HistoryPage.vue';
 import axios from 'axios';
-export default {
-  name: 'App',
-  components: {
-    ProductTabs,
-    LoginDialog,
-    HistoryPage
-  },
-  data() {
-    return {
-      loggedIn: false,
-      userName: null,
-      userId: null,
-      userPhone: null,
-      userEmail: null,
-      accessToken: null,
-      admin: null,
-      alert: false,
-      errorMsg: null,
-      alertType: 'error',
-      menu: false,
-      page: 'product'
-    };
-  },
-  created() {
-    if (localStorage.getItem('accessToken')) {
-      this.userId = localStorage.getItem('userId');
-      this.userName = localStorage.getItem('userName');
-      this.userPhone = localStorage.getItem('userPhone');
-      this.userEmail = localStorage.getItem('userEmail');
-      this.admin = localStorage.getItem('admin');
-      this.accessToken = localStorage.getItem('accessToken');
-      this.loggedIn = true;
-    }
-  },
-  methods: {
-    async login(email, password) {
-      try {
-        const response = await axios.post('http://localhost:8000/api/login', {
-          email: email,
-          password: password
-        });
-        const { id, name, email: userEmail, token, phone, admin } = response.data;
-        this.userId = id;
-        this.userName = name;
-        this.userEmail = userEmail;
-        this.userPhone = phone;
-        this.accessToken = token;
-        this.admin = admin;
-        this.loggedIn = true;
-        localStorage.setItem('userId', id);
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userEmail', userEmail);
-        localStorage.setItem('userPhone', phone);
-        localStorage.setItem('accessToken', token);
-        localStorage.setItem('admin', admin);
-      } catch (error) {
-        if (error.status === 401) {
-          this.showAlert('error', '帳號或密碼錯誤');
-        } else {
-          console.error(error);
-        }
-      }
-    },
-    showAlert(type, msg) {
-      this.alert = true;
-      this.errorMsg = msg;
-      this.alertType = type;
-    },
-    goToIndex() {
-      this.page = 'product';
-    },
-    logout() {
-      this.userId = null;
-      this.userName = null;
-      this.userPhone = null;
-      this.userEmail = null;
-      this.admin = null;
-      this.loggedIn = false;
-      this.accessToken = null;
-      this.page = 'product';
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userPhone');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('admin');
-      localStorage.removeItem('accessToken');
-      this.showAlert('info', '已登出');
-    },
-    showHistory() {
-      this.page = 'history';
+import { RouterView, useRouter } from 'vue-router';
+import { ref, provide, onMounted } from 'vue';
+
+const loggedIn = ref(false);
+const userName = ref(null);
+const userId = ref(null);
+const userPhone = ref(null);
+const userEmail =  ref(null);
+const accessToken = ref(null);
+const isAdmin = ref(null);
+const alert = ref(false);
+const errorMsg = ref(null);
+const alertType = ref('error');
+const menu = ref(false);
+
+const router = useRouter();
+
+const dropdown = ref(false);
+const menuItems = ref([
+  { title: '回首頁', action: '', icon: 'mdi-home' },
+  { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
+  { title: '登出', action: 'logout', icon: 'mdi-logout' },
+]);
+
+const handleMenuItemClick = (item) => {
+  if (item.action === 'logout') {
+    logout();
+  } else {
+    router.push({ path: '/' + item.action });
+  }
+  dropdown.value = false;
+};
+
+const showAlert = (type, msg) => {
+  alert.value = true;
+  errorMsg.value = msg;
+  alertType.value = type;
+};
+
+const loadUserData = () => {
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  if (userData) {
+    userId.value = userData.userId;
+    userName.value = userData.userName;
+    userPhone.value = userData.userPhone;
+    userEmail.value = userData.userEmail;
+    isAdmin.value = userData.isAdmin;
+    loggedIn.value = userData.loggedIn;
+    accessToken.value = userData.accessToken;
+  }
+};
+
+onMounted(() => {
+  loadUserData();
+});
+
+provide('accessToken', accessToken);
+provide('userId', userId);
+provide('userName', userName);
+provide('userPhone', userPhone);
+provide('userEmail', userEmail);
+provide('isAdmin', isAdmin);
+provide('loggedIn', loggedIn);
+
+const login = async (email, password) => {
+  try {
+    const response = await axios.post('http://localhost:8000/api/login', {
+      email: email,
+      password: password
+    });
+    const { id, name, token, phone, admin } = response.data;
+    userId.value = id;
+    userName.value = name;
+    userEmail.value = email;
+    userPhone.value = phone;
+    accessToken.value = token;
+    isAdmin.value = admin;
+    loggedIn.value = true;
+    localStorage.setItem('userId', id);
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userEmail', email);
+    localStorage.setItem('userPhone', phone);
+    localStorage.setItem('accessToken', token);
+    localStorage.setItem('isAdmin', isAdmin);
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      showAlert('error', '帳號或密碼錯誤');
+    } else {
+      console.error(error);
     }
   }
+};
+
+const logout = () => {
+  userId.value = null;
+  userName.value = null;
+  userEmail.value = null;
+  userPhone.value = null;
+  accessToken.value = null;
+  isAdmin.value = null;
+  loggedIn.value = false;
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userPhone');
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('isAdmin');
+  router.push({ name: 'home' });
 }
 </script>

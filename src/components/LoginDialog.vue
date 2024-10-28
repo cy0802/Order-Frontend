@@ -36,32 +36,42 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
   emits: ['login'],
-  data() {
-    return {
-      dialog: false,
-      valid: false,
-      email: '',
-      password: '',
-      emailRules: [
-        v => !!v || 'Email is required',
-        v => /.+@.+\..+/.test(v) || 'Email must be valid',
-      ]
-    };
-  },
-  methods: {
-    login() {
-      if (this.$refs.form.validate()) {
-        this.$emit('login', this.email, this.password );
-        this.dialog = false;
+  setup(props, { emit }) {
+    const dialog = ref(false);
+    const valid = ref(false);
+    const email = ref('');
+    const password = ref('');
+    const emailRules = [
+      v => !!v || 'Email is required',
+      v => /.+@.+\..+/.test(v) || 'Email must be valid',
+    ];
+
+    const login = () => {
+      if (valid.value) {
+        emit('login', email.value, password.value);
+        dialog.value = false;
       }
-    },
-    activate() {
-      this.dialog = true;
-      this.email = '';
-      this.password = '';
-    }
+    };
+
+    const activate = () => {
+      dialog.value = true;
+      email.value = '';
+      password.value = '';
+    };
+
+    return {
+      dialog,
+      valid,
+      email,
+      password,
+      emailRules,
+      login,
+      activate,
+    };
   },
 };
 </script>

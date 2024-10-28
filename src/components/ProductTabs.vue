@@ -47,16 +47,7 @@ export default {
     ProductList,
     CartDialog
   },
-  props: {
-    userId: {
-      type: Number,
-      default: null
-    },
-    userToken: {
-      type: String,
-      default: null
-    }
-  },
+  inject: ['userId', 'accessToken'],
   setup() {
     const products = ref([]);
     const tab = ref(null);
