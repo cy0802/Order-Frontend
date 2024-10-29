@@ -53,18 +53,20 @@
 </template>
 
 <script setup>
-import axios from 'axios';
-import { defineProps, defineEmits, ref } from 'vue';
-const props = defineProps(['products', 'userId', 'userToken']);
+import { defineProps, defineEmits, ref, inject } from 'vue';
+import { OrderRequest, OrderItem } from '@/types/Order.js';
+import { addOrder } from '@/services/orderApi.js';
+
+const props = defineProps(['products']);
+const user = inject('user');
 const emit = defineEmits(['orderSuccess', 'orderError']);
+
 const dialog = ref(false);
 const selectedItems = ref([]);
 const totalPrice = ref(0);
-const notLoggedIn = ref(false);
 const tableId = ref(null);
 
 const activate = () => {
-  notLoggedIn.value = props.userId === null || props.userToken === null;
   dialog.value = true;
   totalPrice.value = 0;
   selectedItems.value = props.products.reduce((acc, category) => {
@@ -79,34 +81,28 @@ const activate = () => {
 }
 const order = async () => {
   dialog.value = false;
-  const orderRequest = {
-    user_id: props.userId,
-    table_id: tableId.value,
-    order_items: selectedItems.value.map(item => {
-      return {
-        product_id: item.id,
-        quantity: item.quantity
-      };
-    })
-  };
+  const orderRequest = new OrderRequest(
+    user.value.userId,
+    -1, // handler id
+    tableId.value,
+    selectedItems.value.map(item => 
+      new OrderItem(
+        item.id,
+        item.quantity
+      )
+    )
+  );
+
   try {
-    const response = await axios.post('http://localhost:8000/api/orders', orderRequest, {
-      headers: {
-        Authorization: `Bearer ${props.userToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    if (response.status === 201) {
+    const err = await addOrder(orderRequest, user.value.accessToken);
+    if (!err) {
       emit('orderSuccess', '訂單已成功送出');
+    } else {
+      emit('orderError', err);
     }
   } catch (error) {
-    if (error.status === 401) {
-      // emit error
-      emit('orderError', '請先登入再進行訂購');
-    } else {
-      emit('orderError', '您的訂單未能成功送出，請再試一次');
-      console.error(error);
-    }
+    emit('orderError', '您的訂單未能成功送出，請再試一次');
+    console.error(error);
   }
 }
 </script>

@@ -7,15 +7,15 @@
       >
         <v-tab 
           v-for="category in products" 
-          :key="category.category_id"
-          :value="category.category_id"
-        >{{ category.category }}</v-tab>
+          :key="category.id"
+          :value="category.id"
+        >{{ category.name }}</v-tab>
       </v-tabs>
       <v-window v-model="tab">
         <v-window-item 
           v-for="category in products"
-          :key="category.category_id"
-          :value="category.category_id"
+          :key="category.id"
+          :value="category.id"
         >
           <ProductList 
             :products="category.products"
@@ -27,73 +27,57 @@
     </v-card>
     <CartDialog
       :products="products"
-      :userId="user.userId"
-      :userToken="user.userToken"
       @orderSuccess="orderSuccess"
       @orderError="orderError"
     />
   </div>
 </template>
 
-<script>
-import axios from 'axios';
-import { onMounted, ref } from 'vue';
+<script setup>
+import { onMounted, ref, defineEmits } from 'vue';
 import ProductList from './ProductList.vue';
 import CartDialog from './CartDialog.vue';
+import { getProducts } from '@/services/productApi.js';
 
-export default {
-  name: 'ProductTabs',
-  components: {
-    ProductList,
-    CartDialog
-  },
-  inject: ['user'],
-  setup() {
-    const products = ref([]);
-    const tab = ref(null);
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/products');
-        response.data.forEach(category => {
-          category.products.forEach(product => {
-            product.quantity = 0;
-          });
-        })
-        products.value = response.data;
-        if (products.value.length > 0) {
-          tab.value = products.value[0].category_id;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
+const products = ref([]);
+const tab = ref(0);
+const emit = defineEmits(['showAlert']);
 
-    onMounted(() => {
-      fetchProducts();
-    });
-
-    return { products, tab };
-  },
-  methods: {
-    addProduct(product_id) {
-      const product = this.products.find(category => category.products.find(product => product.id === product_id));
-      const productIndex = product.products.findIndex(product => product.id === product_id);
-      product.products[productIndex].quantity++;
-    },
-    removeProduct(product_id){
-      const product = this.products.find(category => category.products.find(product => product.id === product_id));
-      const productIndex = product.products.findIndex(product => product.id === product_id);
-      if (product.products[productIndex].quantity > 0) {
-        product.products[productIndex].quantity--;
-      }
-    },
-    orderSuccess(msg) {
-      this.$emit('showAlert', 'success', msg);
-    },
-    orderError(msg) {
-      this.$emit('showAlert', 'error', msg);
-    }
+const fetchProducts = async () => {
+  const { err, productCategories } = await getProducts();
+  if (err) {
+    // Handle error
+    emit('showAlert', 'error', err);
+    return;
   }
+  products.value = productCategories;
+  console.log(products.value[0].products);
+}
+
+onMounted(() => {
+  fetchProducts();
+});
+
+const addProduct = (product_id) => {
+  const product = products.value.find(category => category.products.find(product => product.id === product_id));
+  const productIndex = product.products.findIndex(product => product.id === product_id);
+  product.products[productIndex].quantity++;
+}
+
+const removeProduct = (product_id) => {
+  const product = this.products.find(category => category.products.find(product => product.id === product_id));
+  const productIndex = product.products.findIndex(product => product.id === product_id);
+  if (product.products[productIndex].quantity > 0) {
+    product.products[productIndex].quantity--;
+  }
+}
+
+const orderSuccess = (msg) => {
+  emit('showAlert', 'success', msg);
+}
+
+const orderError = (msg) => {
+  emit('showAlert', 'error', msg);
 }
 </script>
 <style scoped>

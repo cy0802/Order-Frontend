@@ -38,44 +38,43 @@
   </v-container>
 </template>
 
-<script>
+<script setup>
 import axios from 'axios';
+import { inject, ref, onMounted, defineEmits } from 'vue';
 
-export default {
-  inject: ['user'],
-  data() {
-    return {
-      orders: [],
-    };
-  },
-  created() {
-    this.fetchOrderHistory();
-  },
-  methods: {
-    async fetchOrderHistory() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/orders/history', {
-          headers: {
-            Authorization: `Bearer ${this.user.value.accessToken}`,
-          }
-        });
-        this.orders = response.data;
-      } catch (error) {
-        this.$emit('showAlert', '發生錯誤，請再試一次', 'error');
+const user = inject('user');
+const orders = ref([]);
+const emit = defineEmits(['showAlert']);
+
+const fetchOrderHistory = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/orders/history', {
+      headers: {
+        Authorization: `Bearer ${user.value.accessToken}`,
       }
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
-  },
+    });
+    orders.value = response.data;
+  } catch (error) {
+    emit('showAlert', '發生錯誤，請再試一次', 'error');
+  }
 };
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+onMounted(() => {
+  fetchOrderHistory();
+});
+
+
 </script>
 
 <style scoped>

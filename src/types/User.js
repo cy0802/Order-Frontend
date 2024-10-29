@@ -1,11 +1,11 @@
 export default class User {
   constructor(
-      userId = -1, 
-      userName = '', 
-      userPhone = '', 
-      userEmail = '', 
+      userId = null, 
+      userName = null, 
+      userPhone = null, 
+      userEmail = null, 
       isAdmin = false, 
-      accessToken = ''
+      accessToken = null
   ) {
     this.userId = userId;
     this.userName = userName;
@@ -47,11 +47,11 @@ export default class User {
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('isAdmin');
-    this.userId = '';
-    this.userName = '';
-    this.accessToken = '';
-    this.userPhone = '';
-    this.userEmail = '';
+    this.userId = null;
+    this.userName = null;
+    this.accessToken = null;
+    this.userPhone = null;
+    this.userEmail = null;
     this.isAdmin = false;
     this.loggedIn = false;
   }

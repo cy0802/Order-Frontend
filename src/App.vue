@@ -4,7 +4,7 @@
       <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">王品集團</v-app-bar-title>
       <v-spacer></v-spacer>
       <LoginDialog 
-        @login="login"
+        @login="handleLogin"
         v-if="!user.loggedIn"
       />
       <v-menu v-if="user.loggedIn" v-model="menu">
@@ -60,10 +60,10 @@
 
 <script setup>
 import LoginDialog from './components/LoginDialog.vue';
-import axios from 'axios';
 import { RouterView, useRouter } from 'vue-router';
 import { ref, provide, onMounted } from 'vue';
-import User from '../types/User.js';
+import User from './types/User.js';
+import { login } from './services/userApi.js';
 
 const user = ref(new User());
 const alert = ref(false);
@@ -101,26 +101,19 @@ onMounted(() => {
 
 provide('user', user);
 
-const login = async (email, password) => {
-  try {
-    const response = await axios.post('http://localhost:8000/api/login', {
-      email: email,
-      password: password
-    });
-    const { id, name, token, phone, admin } = response.data;
-    user.value = new User(id, name, phone, email, admin, token);
-    user.value.storeUser();
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      showAlert('error', '帳號或密碼錯誤');
-    } else {
-      console.error(error);
-    }
+const handleLogin = async (email, password) => {
+  const { err, loginedUser } = await login(email, password);
+  
+  if (err) {
+    showAlert('error', err);
+  } else {
+    showAlert('success', '登入成功');
+    user.value = loginedUser;
   }
 };
 
 const logout = () => {
   user.value.logout();
-  router.push({ name: 'home' });
+  router.push({ path: '/' });
 }
 </script>
