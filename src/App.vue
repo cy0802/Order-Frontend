@@ -3,6 +3,10 @@
     <v-app-bar app color="primary">
       <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">王品集團</v-app-bar-title>
       <v-spacer></v-spacer>
+      <RegisterDialog 
+        @register="handleRegister"
+        v-if="!user.loggedIn"
+      />
       <LoginDialog 
         @login="handleLogin"
         v-if="!user.loggedIn"
@@ -60,10 +64,11 @@
 
 <script setup>
 import LoginDialog from './components/LoginDialog.vue';
+import RegisterDialog from './components/RegisterDialog.vue';
 import { RouterView, useRouter } from 'vue-router';
 import { ref, provide, onMounted } from 'vue';
 import User from './types/User.js';
-import { login } from './services/userApi.js';
+import { login, register } from './services/userApi.js';
 
 const user = ref(new User());
 const alert = ref(false);
@@ -106,11 +111,21 @@ provide('user', user);
 
 const handleLogin = async (email, password) => {
   const { err, loginedUser } = await login(email, password);
-  
   if (err) {
     showAlert('error', err);
   } else {
     showAlert('success', '登入成功');
+    user.value = loginedUser;
+  }
+};
+
+const handleRegister = async (email, name, phone, password) => {
+  console.log(email, name, phone, password);
+  const { err, loginedUser } = await register(email, name, phone, password);
+  if (err) {
+    showAlert('error', err);
+  } else {
+    showAlert('success', '註冊成功');
     user.value = loginedUser;
   }
 };

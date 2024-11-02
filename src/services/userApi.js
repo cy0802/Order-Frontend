@@ -28,3 +28,22 @@ export const login = async (email, password, accessToken) => {
   }
   return { err, loginedUser };
 };
+
+export const register = async (email, name, phone, password) => {
+  let err = null;
+  let loginedUser = null;
+  try {
+    const response = await apiClient.post('/api/register', { name, email, password, phone });
+    const { id, token, admin } = response.data;
+    loginedUser = new User(id, name, phone, email, admin, token);
+    loginedUser.storeUser();
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      err = '此信箱已被註冊';
+    } else {
+      console.error(error);
+      err = '註冊失敗，請再試一次';
+    }
+  }
+  return { err, loginedUser };
+}

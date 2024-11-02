@@ -1,10 +1,9 @@
 <template>
   <v-btn 
-    icon
-    class="ml-7"
+    class="mr-3"
     @click='activate'
   >
-    <v-icon>mdi-login</v-icon>
+    登入
   </v-btn>
   <v-dialog v-model="dialog" max-width="500px">
     <v-card>
