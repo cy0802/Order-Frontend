@@ -55,7 +55,11 @@ const fetchOrderHistory = async () => {
     });
     orders.value = response.data;
   } catch (error) {
-    emit('showAlert', '發生錯誤，請再試一次', 'error');
+    if (error.response.status === 401) {
+      emit('showAlert', 'error', '請登入以查看歷史訂單');
+      return;
+    }
+    emit('showAlert', 'error', '發生錯誤，請再試一次');
   }
 };
 

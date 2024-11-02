@@ -14,6 +14,12 @@ export default class User {
     this.userEmail = userEmail;
     this.isAdmin = isAdmin;
     this.loggedIn = !!userId;
+    if (this.userId != null) {
+      // token exprire in 3 hours
+      this.tokenExprire = new Date().getTime() + 3 * 60 * 60 * 1000;
+    } else {
+      this.tokenExprire = null;
+    }
   }
 
   storeUser() {
@@ -25,6 +31,9 @@ export default class User {
     localStorage.setItem('userEmail', this.userEmail);
     localStorage.setItem('isAdmin', this.isAdmin);
     this.loggedIn = true;
+    if (Date.now() > this.tokenExprire) {
+      this.logout();
+    }
   }
 
   loadUser() {

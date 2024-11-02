@@ -93,6 +93,9 @@ const showAlert = (type, msg) => {
   alert.value = true;
   errorMsg.value = msg;
   alertType.value = type;
+  setTimeout(() => {
+    alert.value = false;
+  }, 4000); // Close after 3 seconds
 };
 
 onMounted(() => {

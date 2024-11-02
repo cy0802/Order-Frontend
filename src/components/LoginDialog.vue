@@ -9,7 +9,7 @@
   <v-dialog v-model="dialog" max-width="500px">
     <v-card>
       <v-card-text class="mt-4">
-        <v-form ref="form" v-model="valid">
+        <v-form ref="form" v-model="valid" @keyup.enter="login">
           <v-text-field
             v-model="email"
             label="Email"
@@ -40,7 +40,7 @@ import { ref } from 'vue';
 
 export default {
   emits: ['login'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const dialog = ref(false);
     const valid = ref(false);
     const email = ref('');
