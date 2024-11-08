@@ -51,7 +51,6 @@ const fetchProducts = async () => {
     return;
   }
   products.value = productCategories;
-  console.log(products.value[0].products);
 }
 
 onMounted(() => {

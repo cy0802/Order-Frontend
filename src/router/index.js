@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ProductTabs from '@/components/ProductTabs.vue';
 import HistoryPage from '@/components/HistoryPage.vue';
+import CouponPage from '@/components/CouponPage.vue';
 
 const routes = [
   { 
@@ -22,6 +23,15 @@ const routes = [
       userToken: route.query.userToken
     })
   },
+  {
+    path: '/coupons',
+    name: 'CouponPage',
+    component: CouponPage,
+    props: route => ({
+      userId: route.query.userId,
+      userToken: route.query.userToken
+    })
+  }
 ];
 
 const router = createRouter({

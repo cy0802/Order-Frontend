@@ -82,8 +82,8 @@ const activate = () => {
 const order = async () => {
   dialog.value = false;
   const orderRequest = new OrderRequest(
-    user.value.userId,
-    -1, // handler id
+    user.value.admin ? -1 : user.value.userId, // user id
+    user.value.admin ? user.value.userId : -1, // handler id
     tableId.value,
     selectedItems.value.map(item => 
       new OrderItem(

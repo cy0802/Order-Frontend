@@ -69,6 +69,7 @@ import { RouterView, useRouter } from 'vue-router';
 import { ref, provide, onMounted } from 'vue';
 import User from './types/User.js';
 import { login, register } from './services/userApi.js';
+import { computed } from 'vue';
 
 const user = ref(new User());
 const alert = ref(false);
@@ -79,11 +80,23 @@ const menu = ref(false);
 const router = useRouter();
 
 const dropdown = ref(false);
-const menuItems = ref([
+
+const customerMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
+  { title: '優惠卷', action: 'coupons', icon: 'mdi-ticket-percent-outline'},
+  { title: '登出', action: 'logout', icon: 'mdi-logout' },
+]);  
+
+const adminMenuItems = computed(() => [
+  { title: '回首頁', action: '', icon: 'mdi-home' },
+  { title: '檢視訂單', action: 'history', icon: 'mdi-history' },
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
+
+const menuItems = computed(() => {
+  return user.value.isAdmin ? adminMenuItems.value : customerMenuItems.value;
+});
 
 const handleMenuItemClick = (item) => {
   if (item.action === 'logout') {
@@ -120,7 +133,6 @@ const handleLogin = async (email, password) => {
 };
 
 const handleRegister = async (email, name, phone, password) => {
-  console.log(email, name, phone, password);
   const { err, loginedUser } = await register(email, name, phone, password);
   if (err) {
     showAlert('error', err);

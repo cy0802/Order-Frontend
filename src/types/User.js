@@ -1,11 +1,11 @@
 export default class User {
   constructor(
-      userId = null, 
-      userName = null, 
-      userPhone = null, 
-      userEmail = null, 
-      isAdmin = false, 
-      accessToken = null
+    userId = null, 
+    userName = null, 
+    userPhone = null, 
+    userEmail = null, 
+    isAdmin = false, 
+    accessToken = null
   ) {
     this.userId = userId;
     this.userName = userName;
@@ -45,7 +45,7 @@ export default class User {
     this.accessToken = localStorage.getItem('accessToken');
     this.userPhone = localStorage.getItem('userPhone');
     this.userEmail = localStorage.getItem('userEmail');
-    this.isAdmin = localStorage.getItem('isAdmin');
+    this.isAdmin = localStorage.getItem('isAdmin') == 'true' ? true : false;
     this.loggedIn = true;
   }
 
