@@ -1,3 +1,4 @@
+import { getCoupons } from '@/services/couponApi.js';
 export default class User {
   constructor(
     userId = null, 
@@ -14,9 +15,11 @@ export default class User {
     this.userEmail = userEmail;
     this.isAdmin = isAdmin;
     this.loggedIn = !!userId;
+    this.coupons = [];
     if (this.userId != null) {
       // token exprire in 3 hours
       this.tokenExprire = new Date().getTime() + 3 * 60 * 60 * 1000;
+      this.loadUserCoupons();
     } else {
       this.tokenExprire = null;
     }
@@ -30,14 +33,31 @@ export default class User {
     localStorage.setItem('userPhone', this.userPhone);
     localStorage.setItem('userEmail', this.userEmail);
     localStorage.setItem('isAdmin', this.isAdmin);
+    localStorage.setItem('tokenExprire', this.tokenExprire);
     this.loggedIn = true;
     if (Date.now() > this.tokenExprire) {
       this.logout();
     }
   }
 
+  async loadUserCoupons() {
+    if (!this.userId) {
+      return;
+    }
+    const { err, coupons: fetchedCoupons } = await getCoupons(this.accessToken);
+    if (err) {
+      console.error(err);
+      return;
+    }
+    this.coupons = fetchedCoupons;
+  }
+
   loadUser() {
     if (!localStorage.getItem('userId')) {
+      return;
+    }
+    if (Date.now() > localStorage.getItem('tokenExprire')) {
+      this.logout();
       return;
     }
     this.userId = localStorage.getItem('userId');
@@ -46,7 +66,9 @@ export default class User {
     this.userPhone = localStorage.getItem('userPhone');
     this.userEmail = localStorage.getItem('userEmail');
     this.isAdmin = localStorage.getItem('isAdmin') == 'true' ? true : false;
+    this.tokenExprire = localStorage.getItem('tokenExprire');
     this.loggedIn = true;
+    this.loadUserCoupons();
   }
 
   logout() {
@@ -63,5 +85,6 @@ export default class User {
     this.userEmail = null;
     this.isAdmin = false;
     this.loggedIn = false;
+    this.coupons = [];
   }
 }

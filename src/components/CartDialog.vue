@@ -23,11 +23,23 @@
           </v-list-item>
         </v-list>
         <p v-if="selectedItems.length > 0" class="ml-2">共 $ {{ totalPrice }}</p>
+        <p v-if="selectedCoupons.length > 0" class="ml-2">- $ {{ calculateDiscount }}</p>
         <!-- TODO: Memorize maximum table id -->
         <v-combobox
           label="您的桌號"
           :items="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
           v-model="tableId"
+          variant="outlined"
+          class="mt-4 ml-2"
+        ></v-combobox>
+        <v-combobox
+          v-if="user.userId != null && user.isAdmin === false"
+          multiple
+          label="選擇優惠卷"
+          :items="coupons"
+          item-title="couponName"
+          item-value="id"
+          v-model="selectedCoupons"
           variant="outlined"
           class="mt-4 ml-2"
         ></v-combobox>
@@ -53,7 +65,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, inject } from 'vue';
+import { defineProps, defineEmits, ref, inject, computed } from 'vue';
 import { OrderRequest, OrderItem } from '@/types/Order.js';
 import { addOrder } from '@/services/orderApi.js';
 
@@ -65,6 +77,22 @@ const dialog = ref(false);
 const selectedItems = ref([]);
 const totalPrice = ref(0);
 const tableId = ref(null);
+const selectedCoupons = ref([]);
+
+const coupons = computed(() => {
+  return user.value.coupons.filter(coupon => !coupon.used);
+});
+
+const calculateDiscount = computed(() => {
+  return Math.round(selectedCoupons.value.reduce((acc, coupon) => {
+    if (coupon.type === 'percent_off') {
+      acc += totalPrice.value * (1 - coupon.percentOff);
+    } else {
+      acc += coupon.discount;
+    }
+    return acc;
+  }, 0));
+});
 
 const activate = () => {
   dialog.value = true;
@@ -90,10 +118,12 @@ const order = async () => {
         item.id,
         item.quantity
       )
-    )
+    ),
+    selectedCoupons.value.map(coupon => coupon.id)
   );
 
   try {
+    console.log('Order request: ', orderRequest.payload());
     const err = await addOrder(orderRequest, user.value.accessToken);
     if (!err) {
       emit('orderSuccess', '訂單已成功送出');

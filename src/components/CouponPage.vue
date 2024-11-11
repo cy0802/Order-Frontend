@@ -30,24 +30,10 @@
 </template>
 
 <script setup>
-import { ref, inject, defineEmits, onMounted } from 'vue'
-import { getCoupons } from '@/services/couponApi.js'
+
+import { computed, inject } from 'vue';
 
 const user = inject('user');
-const coupons = ref([]);
-const emit = defineEmits(['showAlert']);
+const coupons = computed(() => user.value.coupons);
 
-const fetchCoupons = async () => {
-  const { err, coupons: fetchedCoupons } = await getCoupons(user.value.accessToken);
-  if (err) {
-    emit('showAlert', 'error', err);
-    return;
-  }
-  coupons.value = fetchedCoupons;
-}
-
-onMounted(() => {
-  fetchCoupons();
-  console.log(coupons.value);
-});
 </script>

@@ -3,16 +3,19 @@ export class OrderRequest {
       userId = null, 
       handlerId = null,
       tableId = null,  
-      orderItems = []
+      orderItems = [],
+      couponIds = []
   ) {
     this.userId = userId;
     this.handlerId = handlerId;
     this.tableId = tableId;
     this.orderItems = orderItems;
+    this.couponIds = couponIds;
   }
   payload() {
     let data = {
       table_id: this.tableId,
+      coupon_ids: this.couponIds,
       order_items: this.orderItems.map(item => ({
         product_id: item.productId,
         quantity: item.quantity
