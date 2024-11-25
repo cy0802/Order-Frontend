@@ -90,7 +90,10 @@ const customerMenuItems = computed(() => [
 
 const adminMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
-  { title: '檢視訂單', action: 'history', icon: 'mdi-history' },
+  { title: '訂單狀態', action: 'show-orders', icon: 'note-outline'},
+  { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
+  { title: '結帳系統', action: 'charge-page', icon: 'cash-check'},
+  { title: '管理菜單', action: 'menu-management', icon: 'note-edit-outline'},
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
 
