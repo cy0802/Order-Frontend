@@ -64,7 +64,7 @@ const addProduct = (product_id) => {
 }
 
 const removeProduct = (product_id) => {
-  const product = this.products.find(category => category.products.find(product => product.id === product_id));
+  const product = products.value.find(category => category.products.find(product => product.id === product_id));
   const productIndex = product.products.findIndex(product => product.id === product_id);
   if (product.products[productIndex].quantity > 0) {
     product.products[productIndex].quantity--;

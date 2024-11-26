@@ -21,7 +21,7 @@
                       >
                         <v-list-item-content>
                           <v-list-item-title>{{ item.Product.name }} * {{ item.quantity }}</v-list-item-title>
-                          <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ item.serve_state ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ (item.serve_state == 'completed') ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
                           <v-list-item-subtitle></v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>

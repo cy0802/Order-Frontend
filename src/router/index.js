@@ -3,6 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import ProductTabs from '@/components/ProductTabs.vue';
 import HistoryPage from '@/components/HistoryPage.vue';
 import CouponPage from '@/components/CouponPage.vue';
+import ShowOrder from '../components/ShowOrder.vue'
+import MenuManagement from '../components/MenuManagement.vue'
+import ChargePage from '../components/ChargePage.vue'
 
 const routes = [
   { 
@@ -31,6 +34,33 @@ const routes = [
       userId: route.query.userId,
       userToken: route.query.userToken
     })
+  },
+  {
+    path: '/show-orders',
+    name: 'ShowOrder',
+    component: ShowOrder,
+    props: route => ({
+      userId: route.query.userId,
+      userToken: route.query.userToken
+    })
+  },
+  {
+    path: '/menu-management',
+    name: 'MenuManagement',
+    component: MenuManagement,
+    props: route => ({
+      userId: route.query.userId,
+      userToken: route.query.userToken
+    })
+  },
+  {
+    path: '/charge-page',
+    name: 'ChargePage',
+    component: ChargePage,
+    // props: route => ({
+    //   userId: route.query.userId,
+    //   userToken: route.query.userToken
+    // })
   }
 ];
 
