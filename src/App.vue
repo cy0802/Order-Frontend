@@ -41,25 +41,25 @@
     </v-app-bar>
     <v-main>
       <v-container>
-        <v-alert
-          v-model="alert"
-          :type="alertType"
-          closable
-          close-label="關閉"
-          class="mb-4"
-          variant="tonal"
-          border="start"
-          :border-color="alertType"
-          elevation="2"
-        >
-          {{ errorMsg }}
-        </v-alert>
-        <RouterView 
-          @showAlert="showAlert"
-        />
-      </v-container>
+      <v-alert
+        v-model="alert"
+        :type="alertType"
+        closable
+        close-label="關閉"
+        class="mb4 fixed-alert"
+        border="start"
+        :border-color="alertType"
+        elevation="2"
+      >
+        {{ errorMsg }}
+      </v-alert>
+      <RouterView 
+        @showAlert="showAlert"
+      />
+    </v-container>
     </v-main>
   </v-app>
+  <!-- variant="tonal" -->
 </template>
 
 <script setup>
@@ -90,10 +90,10 @@ const customerMenuItems = computed(() => [
 
 const adminMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
-  { title: '訂單狀態', action: 'show-orders', icon: 'note-outline'},
+  { title: '訂單狀態', action: 'show-orders', icon: 'mdi-note-outline'},
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
-  { title: '結帳系統', action: 'charge-page', icon: 'cash-check'},
-  { title: '管理菜單', action: 'menu-management', icon: 'note-edit-outline'},
+  { title: '結帳系統', action: 'charge-page', icon: 'mdi-cash-check'},
+  { title: '管理菜單', action: 'menu-management', icon: 'mdi-note-edit-outline'},
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
 
@@ -150,3 +150,15 @@ const logout = () => {
   router.push({ path: '/' });
 }
 </script>
+
+<style scoped>
+.fixed-alert {
+  position: fixed; /* 固定在螢幕的位置 */
+  top: 80px; /* 距離螢幕上方 20px */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平移動，確保完全居中 */
+  z-index: 9999; /* 確保在其他內容之上 */
+  max-width: 90%; /* 防止視窗過小時超出螢幕 */
+  width: 800px; /* 設定提示框寬度 */
+}
+</style>

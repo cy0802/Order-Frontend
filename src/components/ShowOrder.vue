@@ -1,77 +1,188 @@
 <template>
     <div>
-        <h1>訂單列表</h1>
+        <v-card-title class="text-center my-4">訂單列表</v-card-title>
         <div v-if="notification.visible" :class="['notification', notification.type]">
             {{ notification.message }}
         </div>
-        <div id="controls">
-            <div>
-                <label>
-                    <input type="checkbox" v-model="selectedStates.pending" @change="fetchOrders" checked>
-                    Pending
-                </label>
-                <label>
-                    <input type="checkbox" v-model="selectedStates.preparing" @change="fetchOrders" checked>
-                    Preparing
-                </label>
-                <label>
-                    <input type="checkbox" v-model="selectedStates.waiting" @change="fetchOrders" checked>
-                    Waiting for Delivery
-                </label>
-                <label>
-                    <input type="checkbox" v-model="selectedStates.completed" @change="fetchOrders" checked>
-                    Completed
-                </label>
-            </div>
-            <button @click="toggleDisplayMode">{{ displayMode }}</button>
-        </div>
+        <v-container>
+            <!-- 控制區域 -->
+            <v-row class="align-center" justify="center">
+            <v-checkbox
+                v-model="selectedStates.pending"
+                label="Pending"
+                @change="fetchOrders"
+                :value="true"
+                hide-details
+                class="mr-4"
+            ></v-checkbox>
+            <v-checkbox
+                v-model="selectedStates.preparing"
+                label="Preparing"
+                @change="fetchOrders"
+                :value="true"
+                hide-details
+                class="mr-4"
+            ></v-checkbox>
+            <v-checkbox
+                v-model="selectedStates.waiting"
+                label="Waiting for Delivery"
+                @change="fetchOrders"
+                :value="true"
+                hide-details
+                class="mr-4"
+            ></v-checkbox>
+            <v-checkbox
+                v-model="selectedStates.completed"
+                label="Completed"
+                @change="fetchOrders"
+                :value="true"
+                hide-details
+            ></v-checkbox>
+            </v-row>
+
+            <v-row class="mt-4" justify="center">
+            <v-btn
+                @click="toggleDisplayMode"
+                variant="outlined"
+                color="primary"
+            >
+                {{ displayMode }}
+            </v-btn>
+            </v-row>
+        </v-container>
+        
         <div id="orders-container">
             <!-- Grouped Mode -->
             <div v-if="displayMode === 'grouped'">
-                <div v-for="(orders, tableId) in groupedOrders" :key="tableId" class="table-block">
-                    <h3>桌號: {{ tableId }}</h3>
-                    <div v-for="order in orders" :key="order.order_id" class="order-item">
-                        <p>品項: {{ order.Product.name }}</p>
+                <v-container id="orders-container">
+                <!-- Grouped Mode -->
+                <v-row v-if="displayMode === 'grouped'" justify="center">
+                <v-col
+                    v-for="(orders, tableId) in groupedOrders"
+                    :key="tableId"
+                    cols="12"
+                    md="6"
+                >
+                    <v-card
+                    outlined
+                    class="table-block"
+                    elevation="4"
+                    >
+                    <v-card-title class="headline">
+                        桌號: {{ tableId }}
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <div
+                        v-for="(order, index) in orders"
+                        :key="order.order_id"
+                        class="order-item"
+                        >
+                        <p class="my-4"><strong>品項:</strong> {{ order.Product.name }}</p>
                         <div v-for="option in order.Options" :key="option.name">
-                            <p>{{ option.Option_Type.name }}: {{ option.name }}</p>
+                            <p class="my-4">
+                            <strong>{{ option.Option_Type.name }}:</strong> {{ option.name }}
+                            </p>
                         </div>
-                        <label :for="'state-select-' + order.id">State:</label>
-                        <select :id="'state-select-' + order.id" v-model="order.serve_state" @change="updateOrderState(order.id)">
-                            <option value="pending">Pending</option>
-                            <option value="preparing">Preparing</option>
-                            <option value="waiting for delivery">Waiting for Delivery</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                        <button @click="confirmDelete(order.id)">Delete</button>
-                        <p>目前負責人: {{ order.handler_id || "無" }}</p>
-                    </div>
-                </div>
+                        <p class="my-4"><strong>數量:</strong> {{ order.quantity }}</p>
+                        <v-select
+                            :id="'state-combobox-' + order.id"
+                            v-model="order.serve_state"
+                            @blur="updateOrderState(order.id)"
+                            :items="['pending', 'preparing', 'waiting for delivery', 'completed']"
+                            label="State"
+                            outlined
+                            class="mt-4 ml-2"
+                        ></v-select>
+                        <v-btn
+                            @click="confirmDelete(order.id)"
+                            color="error"
+                            variant="outlined"
+                            class="mt-2"
+                        >
+                            刪除
+                        </v-btn>
+                        <p class="my-4"><strong>目前負責人:</strong> {{ order.handler_id || "無" }}</p>
+                        <!-- 分界線 -->
+                        <v-divider
+                            v-if="index < orders.length - 1"
+                            class="my-4"
+                        ></v-divider>
+                        </div>
+                    </v-card-text>
+                    </v-card>
+                </v-col>
+                </v-row>
+            </v-container>
             </div>
             <!-- Sorted Mode -->
             <div v-else>
-                <div v-for="order in sortedOrders" :key="order.id" class="time-block">
-                    <p>點餐時間: {{ order.createdAt }}</p>
-                    <p>Item: {{ order.Product.name }}</p>
-                    <div v-for="option in order.Options" :key="option.name" class="time-child">
-                        <p>{{ option.Option_Type.name }}: {{ option.name }}</p>
-                    </div>
-                    <label :for="'state-select-' + order.id">State:</label>
-                    <select :id="'state-select-' + order.id" v-model="order.serve_state" @change="updateOrderState(order.id)">
-                        <option value="pending">Pending</option>
-                        <option value="preparing">Preparing</option>
-                        <option value="waiting for delivery">Waiting for Delivery</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                    <button @click="confirmDelete(order.id)">Delete</button>
-                    <p>目前負責人: {{ order.handler_id || "無" }}</p>
-                </div>
+                <v-container>
+                    <v-row justify="center">
+                    <v-col
+                        v-for="order in sortedOrders"
+                        :key="order.id"
+                        cols="12"
+                    >
+                        <v-card
+                        outlined
+                        elevation="2"
+                        class="time-block mb-4"
+                        >
+                        <v-card-text>
+                            <p class="my-4"><strong>點餐時間:</strong> {{ formatDate(order.createdAt) }}
+                             / 桌號: {{ order.id }}</p>
+                            <p class="my-4"><strong>品項:</strong> {{ order.Product.name }}</p>
+                            <p class="my-4"><strong>數量:</strong> {{ order.quantity }}</p>
+                            <div
+                            v-for="option in order.Options"
+                            :key="option.name"
+                            class="time-child"
+                            >
+                            <p class="my-4">
+                                <strong>{{ option.Option_Type.name }}:</strong> {{ option.name }}
+                            </p>
+                            </div>
+                            <v-select
+                            :id="'state-combobox-' + order.id"
+                            v-model="order.serve_state"
+                            @blur="updateOrderState(order.id)"
+                            :items="['pending', 'preparing', 'waiting for delivery', 'completed']"
+                            label="State"
+                            outlined
+                            class="mt-4 ml-2"
+                            ></v-select>
+                            <v-btn
+                            @click="confirmDelete(order.id)"
+                            color="error"
+                            variant="outlined"
+                            class="mt-2"
+                            >
+                            刪除
+                            </v-btn>
+                            <p class="my-4"><strong>目前負責人:</strong> {{ order.handler_id || "無" }}</p>
+                        </v-card-text>
+                        </v-card>
+                    </v-col>
+                    </v-row>
+                </v-container>
             </div>
         </div>
-        <div v-if="showDeleteDialog" class="delete-dialog">
-            <p>確定要取消嗎？</p>
-            <button @click="deleteOrder">是</button>
-            <button @click="cancelDelete">否</button>
-        </div>
+        <v-dialog v-model="showDeleteDialog" max-width="300">
+            <v-card>
+            <v-card-text>
+                <p>確定要取消嗎？</p>
+            </v-card-text>
+            <v-card-actions class="justify-end">
+                <v-btn color="error" @click="cancelDelete" variant="tonal">
+                否
+                </v-btn>
+                <v-btn color="success" @click="deleteOrder" variant="tonal">
+                是
+                </v-btn>
+            </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -204,117 +315,23 @@ const cancelDelete = () => {
     orderIdToDelete.value = null;
 };
 
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 onMounted(fetchOrders);
 </script>
 
 
 <style scoped>
 
-.table-block {
-    width: 90%; /* 佔父容器的90% */
-    max-width: 350px; /* 最大寬度為300px */
-    margin: 10px auto; /* 垂直居中 */
-    border: 2px solid #000;
-    padding: 10px;
-    border-radius: 10px;
-}
-.order-item, .time-block {
-    width: 90%; /* 佔父容器的90% */
-    max-width: 300px; /* 最大寬度為300px */
-    margin: 10px auto; /* 垂直居中 */
-    background-color: #ffffff; /* 卡片背景色 */
-    border-radius: 10px;       /* 圓角 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.662); /* 陰影效果 */
-    padding: 15px;             /* 內邊距 */
-    margin-bottom: 15px;       /* 每個卡片之間的間距 */
-    transition: transform 0.2s ease-in-out; /* 動態效果 */
-}
 
-.order-item:hover, .time-block:hover {
-    transform: translateY(-5px); /* 滑過時微微上移 */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.998); /* 增強陰影 */
-}
-
-/* 標題樣式 */
-h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-/* 選項和訂單資訊的樣式 */
-.order-item p, .time-block p {
-    margin: 5px 0;
-    color: #555;
-}
-
-/* 按鈕樣式 */
-button {
-    background-color: #4e4e4e; /* 按鈕背景色 */
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #3a3a3a; /* 滑過時顏色變深 */
-}
-
-/* 狀態選擇的樣式 */
-select {
-    padding: 6px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-top: 5px;
-    width: 100%;
-}
-
-select:hover {
-    background-color: #b6b6b6;
-}
-
-/* 卡片內的按鈕調整 */
-.order-item button, .time-block button {
-    margin-top: 10px;
-    display: inline-block;
-    width: 100%; /* 按鈕寬度調整，使其充滿卡片的寬度 */
-}
-
-.notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 16px;
-    color: #fff;
-    z-index: 1000;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.delete-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: white;
-    border: 2px solid #000;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    z-index: 1000; /* 讓對話框出現在其他元素上方 */
-}
-
-.notification.success {
-    background-color: #4caf50;
-}
-
-.notification.error {
-    background-color: #f44336;
-}
 
 </style>

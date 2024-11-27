@@ -1,40 +1,63 @@
 <template>
   <div>
-    <div class="filters">
-      <button
-        :class="{ active: filter === 'unpaid' }"
-        @click="filterOrders('unpaid')"
-      >
-        尚未結帳
-      </button>
-      <button
-        :class="{ active: filter === 'paid' }"
-        @click="filterOrders('paid')"
-      >
-        歷史訂單
-      </button>
-    </div>
+    <v-card-title class="text-center my-4">結帳系統</v-card-title>
+    <v-card>
+    <v-tabs v-model="filter" grow color="primary">
+      <v-tab value="unpaid">尚未結帳</v-tab>
+      <v-tab value="paid">歷史訂單</v-tab>
+    </v-tabs>
 
-    <div class="order-list">
-      <div
-        v-for="order in filteredOrders"
-        :key="order.id"
-        class="order-tile"
-        @click="showOrderDetails(order)"
-      >
-        <p>桌號: {{ order.table_id }}</p>
-        <p>客人: {{ order.user ? order.user.name : "無" }}</p>
-        <p>負責人: {{ order.handler ? order.handler.name : "無" }}</p>
-      </div>
-    </div>
+    <v-tabs-items v-model="filter">
+      <v-tab-item>
+        <div class="order-list">
+          <div
+            v-for="(order, index) in filteredOrders"
+            :key="order.id"
+            class="order-tile"
+          >
+            <v-list-item outlined>
+              <v-list-item-title class="headline">
+                桌號: {{ order.id }}
+              </v-list-item-title>
+              <v-divider></v-divider>
+              <p class="my-4"><strong>客人:</strong> {{ order.user ? order.user.name : "無" }}</p>
+              <p class="my-4"><strong>負責人:</strong> {{ order.handler ? order.handler.name : "無" }}</p>
+            </v-list-item>
 
-    <OrderDetailsModal
+            <v-btn
+              icon
+              @click.stop="showOrderDetails(order)"
+              style="margin-left: 16px;"
+              class="my-4"
+            >
+              <v-icon>mdi-eye</v-icon>
+            </v-btn>
+            
+            <!-- 分隔線 -->
+            <v-divider 
+              v-if="index < filteredOrders.length - 1"
+              class="my-4"
+            ></v-divider>
+            <OrderDetailsModal
+              v-if="selectedOrder === order"
+              :order="selectedOrder"
+              :is-unpaid="filter === 'unpaid'"
+              @close="selectedOrder = null"
+              @checkout="handleCheckout"
+            />
+          </div>
+        </div>
+      </v-tab-item>
+    </v-tabs-items>
+  </v-card>
+
+    <!-- <OrderDetailsModal
       v-if="selectedOrder"
       :order="selectedOrder"
       :is-unpaid="filter === 'unpaid'"
       @close="selectedOrder = null"
       @checkout="handleCheckout"
-    />
+    /> -->
   </div>
 </template>
 
@@ -70,13 +93,18 @@ const filteredOrders = computed(() =>
 );
 
 // 設定篩選條件
-const filterOrders = (type) => {
-  filter.value = type;
-};
+// const filterOrders = (type) => {
+//   filter.value = type;
+// };
 
 // 顯示訂單詳情
 const showOrderDetails = (order) => {
-  selectedOrder.value = order;
+  if(selectedOrder.value === order) {
+    selectedOrder.value = null;
+  }
+  else {
+    selectedOrder.value = order;
+  }
 };
 
 // 處理結帳
@@ -114,31 +142,5 @@ onMounted(fetchOrders);
 </script>
 
 <style>
-.filters {
-  display: flex;
-  gap: 10px;
-}
-.filters button {
-  padding: 10px 20px;
-  cursor: pointer;
-}
-.filters .active {
-  background-color: #4caf50;
-  color: white;
-}
-.order-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-}
-.order-tile {
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-.order-tile:hover {
-  background-color: #f0f0f0;
-}
+
 </style>
