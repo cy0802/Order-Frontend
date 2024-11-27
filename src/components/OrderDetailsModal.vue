@@ -13,6 +13,7 @@
         <p>
           <strong>{{ product.Product.name }}</strong>
           <span> ${{ product.Product.price }}</span>
+          <span> / 數量: {{ product.quantity }}</span>
         </p>
         <v-list v-if="product.Options.length" dense>
           <v-list-item v-for="option in product.Options" :key="option.name">

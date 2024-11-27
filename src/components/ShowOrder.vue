@@ -84,6 +84,7 @@
                             <strong>{{ option.Option_Type.name }}:</strong> {{ option.name }}
                             </p>
                         </div>
+                        <p class="my-4"><strong>數量:</strong> {{ order.quantity }}</p>
                         <v-select
                             :id="'state-combobox-' + order.id"
                             v-model="order.serve_state"
@@ -132,6 +133,7 @@
                             <p class="my-4"><strong>點餐時間:</strong> {{ formatDate(order.createdAt) }}
                              / 桌號: {{ order.id }}</p>
                             <p class="my-4"><strong>品項:</strong> {{ order.Product.name }}</p>
+                            <p class="my-4"><strong>數量:</strong> {{ order.quantity }}</p>
                             <div
                             v-for="option in order.Options"
                             :key="option.name"
