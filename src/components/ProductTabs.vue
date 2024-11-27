@@ -5,7 +5,7 @@
         v-model="tab"
         color="primary"
       >
-        <v-tab 
+      <v-tab 
           v-for="category in products" 
           :key="category.id"
           :value="category.id"
