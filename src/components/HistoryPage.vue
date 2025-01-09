@@ -6,30 +6,34 @@
           <v-card-title class="text-center my-4">歷史訂單</v-card-title>
           <v-card-text>
             <v-list>
-              <v-list-item-group>
-                <v-list-item
-                  v-for="order in orders"
-                  :key="order.id"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>訂購時間：{{ formatDate(order.createdAt) }}</v-list-item-title>
-                    <v-list-item-subtitle>總價格：${{ order.price }} / {{ order.paid_state ? '已結帳' : '尚未付款' }}</v-list-item-subtitle>
-                    <v-list>
-                      <v-list-item
-                        v-for="item in order.Order_Products"
-                        :key="item.id"
+              <v-list-item
+                v-for="order in orders"
+                :key="order.id"
+              >
+                <v-list-item-title>訂購時間：{{ formatDate(order.createdAt) }}</v-list-item-title>
+                <v-list-item-subtitle>總價格：${{ order.price }} / {{ order.paid_state ? '已結帳' : '尚未付款' }}</v-list-item-subtitle>
+                <v-list>
+                  <v-list-item
+                    v-for="item in order.Order_Products"
+                    :key="item.id"
+                  >
+                    
+                    <v-list-item-title>
+                      {{ item.Product.name }} * {{ item.quantity }}
+                      <v-chip
+                        v-for="option in item.Options"
+                        :key="option.id"
+                        size="small"
+                        class="mb-1 ml-1"
                       >
-                        <v-list-item-content>
-                          <v-list-item-title>{{ item.Product.name }} * {{ item.quantity }}</v-list-item-title>
-                          <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ (item.serve_state == 'completed') ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
-                          <v-list-item-subtitle></v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-list-item-content>
-                  <v-divider></v-divider>
-                </v-list-item>
-              </v-list-item-group>
+                        {{ option.name }} (+${{ option.price }})
+                      </v-chip>
+                    </v-list-item-title>
+                    <v-list-item-subtitle>單件價格：${{ item.Product.price }} / {{ (item.serve_state == 'completed') ? '已出餐' : '尚未出餐' }}</v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+                <v-divider></v-divider>
+              </v-list-item>
             </v-list>
           </v-card-text>
         </v-card>

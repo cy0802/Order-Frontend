@@ -16,7 +16,7 @@ export const getProducts = async () => {
     productCategories = response.data.map(category => {
       const products = category.products.map(product => {
         const optionTypes = product.options.map(optionType => {
-          const options = product.options.map(option => {
+          const options = optionType.options.map(option => {
             return new ProductOption(option.id, option.name, option.price);
           });
           return new ProductOptionType(optionType.id, optionType.name, options);

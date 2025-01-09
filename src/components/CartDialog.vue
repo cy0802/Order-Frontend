@@ -14,11 +14,32 @@
         <p v-if="selectedItems.length === 0" class="ml-2">您的購物車中沒有商品</p>
         <v-list>
           <v-list-item
-            v-for="item in selectedItems"
-            :key="item.id"
+            v-for="(item, index) in selectedItems"
+              :key="index"
           >
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-            <v-list-item-subtitle class="mb-2">${{ item.price }} / 數量: {{ item.quantity }}</v-list-item-subtitle>
+            <v-row align="center">
+              <v-col>
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                <v-list-item-subtitle class="mb-2">${{ item.price }} / 數量: {{ item.quantity }}</v-list-item-subtitle>
+                <v-chip
+                  v-for = "option in item.options"
+                  :key="option.id"
+                  class="mr-2 mb-2"
+                  size="small"
+                >
+                  {{ option.name }} (+${{ option.price }})
+                </v-chip>
+              </v-col>
+              <v-col class="d-flex justify-end">
+                <v-btn
+                  color="error"
+                  variant="tonal"
+                  @click="removeItem(index)"
+                >
+                  刪除
+                </v-btn>
+              </v-col>
+            </v-row>
             <v-divider></v-divider>
           </v-list-item>
         </v-list>
@@ -65,19 +86,21 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, inject, computed } from 'vue';
+import { defineProps, defineEmits, defineModel, ref, inject, computed } from 'vue';
 import { OrderRequest, OrderItem } from '@/types/Order.js';
 import { addOrder } from '@/services/orderApi.js';
 
 const props = defineProps(['products']);
 const user = inject('user');
 const emit = defineEmits(['orderSuccess', 'orderError']);
+const orderItems = defineModel("orderItems", { type: Array });
 
 const dialog = ref(false);
 const selectedItems = ref([]);
 const totalPrice = ref(0);
 const tableId = ref(null);
 const selectedCoupons = ref([]);
+const productsFlat = ref([]);
 
 const coupons = computed(() => {
   return user.value.coupons.filter(coupon => !coupon.used);
@@ -97,26 +120,62 @@ const calculateDiscount = computed(() => {
 const activate = () => {
   dialog.value = true;
   totalPrice.value = 0;
-  selectedItems.value = props.products.reduce((acc, category) => {
-    category.products.forEach(product => {
-      if (product.quantity > 0) {
-        acc.push(product);
-        totalPrice.value += product.price * product.quantity;
-      }
+  props.products.forEach(category => {
+    productsFlat.value.push(...category.products);
+  });
+  console.log('Products flat: ', productsFlat.value);
+  console.log('Order items: ', orderItems.value);
+  selectedItems.value = orderItems.value.map(item => {
+    const product = productsFlat.value.find(p => p.id === item.productId);
+    const options = [];
+    item.optionIds.forEach(optionIds => {
+      product.options.forEach(optionType => {
+        const option = optionType.options.find(option => option.id === optionIds);
+        if (option) {
+          options.push(option);
+          totalPrice.value += option.price;
+        }
+      })
     });
-    return acc;
-  }, []);
+    totalPrice.value += product.price * item.quantity;
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: item.quantity,
+      options: options,
+    };
+  });
 }
+
+const removeItem = (index) => {
+  const item = selectedItems.value[index];
+  totalPrice.value -= item.price * item.quantity;
+  item.options.forEach(option => {
+    totalPrice.value -= option.price;
+  });
+  selectedItems.value.splice(index, 1);
+  const orderIndex = orderItems.value.findIndex(i => 
+    i.productId === item.id && 
+    JSON.stringify(i.optionIds) === JSON.stringify(item.options.map(option => option.id))
+  );
+  orderItems.value.splice(orderIndex, 1);
+
+  console.log('Selected items: ', selectedItems.value);
+  console.log('Order items: ', orderItems.value);
+}
+
 const order = async () => {
   dialog.value = false;
   const orderRequest = new OrderRequest(
     user.value.isAdmin ? -1 : user.value.userId, // user id
     user.value.isAdmin ? user.value.userId : -1, // handler id
     tableId.value,
-    selectedItems.value.map(item => 
+    orderItems.value.map(item => 
       new OrderItem(
-        item.id,
-        item.quantity
+        item.productId,
+        item.quantity,
+        item.optionIds,
       )
     ),
     selectedCoupons.value.map(coupon => coupon.id)
