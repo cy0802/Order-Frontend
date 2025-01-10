@@ -18,7 +18,8 @@ export class OrderRequest {
       coupon_ids: this.couponIds,
       order_items: this.orderItems.map(item => ({
         product_id: item.productId,
-        quantity: item.quantity
+        quantity: item.quantity,
+        option_ids: item.optionIds
       }))
     }
     if (this.userId) {
@@ -34,9 +35,11 @@ export class OrderRequest {
 export class OrderItem {
   constructor(
       productId = null, 
-      quantity = 0
+      quantity = 0,
+      optionIds = []
   ) {
     this.productId = productId;
     this.quantity = quantity;
+    this.optionIds = optionIds;
   }
 }
