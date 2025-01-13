@@ -16,8 +16,8 @@ export const login = async (email, password, accessToken) => {
       { email: email, password: password }, 
       { headers: { "Authorization": "Bearer " + accessToken }}
     );
-    const { id, name, token, phone, admin } = response.data;
-    loginedUser = new User(id, name, phone, email, admin, token);
+    const { id, name, token, phone, permission } = response.data;
+    loginedUser = new User(id, name, phone, email, permission === 'admin', permission === 'clerk', token);
     loginedUser.storeUser();
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -34,8 +34,8 @@ export const register = async (email, name, phone, password) => {
   let loginedUser = null;
   try {
     const response = await apiClient.post('/api/register', { name, email, password, phone });
-    const { id, token, admin } = response.data;
-    loginedUser = new User(id, name, phone, email, admin, token);
+    const { id, token, permission } = response.data;
+    loginedUser = new User(id, name, phone, email, permission === 'admin', permission === 'clerk', token);
     loginedUser.storeUser();
   } catch (error) {
     if (error.response && error.response.status === 400) {

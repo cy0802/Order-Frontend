@@ -6,6 +6,7 @@ export default class User {
     userPhone = null, 
     userEmail = null, 
     isAdmin = false, 
+    isClerk = false,
     accessToken = null
   ) {
     this.userId = userId;
@@ -14,6 +15,7 @@ export default class User {
     this.userPhone = userPhone;
     this.userEmail = userEmail;
     this.isAdmin = isAdmin;
+    this.isClerk = isClerk;
     this.loggedIn = !!userId;
     this.coupons = [];
     if (this.userId != null) {
@@ -33,6 +35,7 @@ export default class User {
     localStorage.setItem('userPhone', this.userPhone);
     localStorage.setItem('userEmail', this.userEmail);
     localStorage.setItem('isAdmin', this.isAdmin);
+    localStorage.setItem('isClerk', this.isClerk);
     localStorage.setItem('tokenExprire', this.tokenExprire);
     this.loggedIn = true;
     if (Date.now() > this.tokenExprire) {
@@ -66,6 +69,7 @@ export default class User {
     this.userPhone = localStorage.getItem('userPhone');
     this.userEmail = localStorage.getItem('userEmail');
     this.isAdmin = localStorage.getItem('isAdmin') == 'true' ? true : false;
+    this.isClerk = localStorage.getItem('isClerk') == 'true' ? true : false;
     this.tokenExprire = localStorage.getItem('tokenExprire');
     this.loggedIn = true;
     this.loadUserCoupons();
@@ -78,12 +82,14 @@ export default class User {
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('isClerk');
     this.userId = null;
     this.userName = null;
     this.accessToken = null;
     this.userPhone = null;
     this.userEmail = null;
     this.isAdmin = false;
+    this.isClerk = false;
     this.loggedIn = false;
     this.coupons = [];
   }
