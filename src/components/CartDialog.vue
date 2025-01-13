@@ -54,7 +54,7 @@
           class="mt-4 ml-2"
         ></v-combobox>
         <v-combobox
-          v-if="user.userId != null && user.isAdmin === false"
+          v-if="user.userId != null && user.isAdmin === false && user.isClerk === false"
           multiple
           label="選擇優惠卷"
           :items="coupons"
@@ -168,8 +168,8 @@ const removeItem = (index) => {
 const order = async () => {
   dialog.value = false;
   const orderRequest = new OrderRequest(
-    user.value.isAdmin ? -1 : user.value.userId, // user id
-    user.value.isAdmin ? user.value.userId : -1, // handler id
+    (user.value.isAdmin || user.value.isClerk) ? -1 : user.value.userId, // user id
+    (user.value.isAdmin || user.value.isClerk) ? user.value.userId : -1, // handler id
     tableId.value,
     orderItems.value.map(item => 
       new OrderItem(
