@@ -17,7 +17,7 @@
           >
             <v-list-item outlined>
               <v-list-item-title class="headline">
-                桌號: {{ order.id }}
+                桌號: {{ order.table_id }}
               </v-list-item-title>
               <v-divider></v-divider>
               <p class="my-4"><strong>客人:</strong> {{ order.user ? order.user.name : "無" }}</p>
