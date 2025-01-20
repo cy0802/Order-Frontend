@@ -1,62 +1,92 @@
 <template>
   <v-container>
     <h2 class="text-center my-4">管理菜單</h2>
+    <v-row>
+      <v-select 
+        v-model="selectedCategory" 
+        label="顯示類別"
+        :items="categoryNames.map(c => c.title)"
+      >
+      </v-select>
+
+        <v-list>
+        <v-list-item
+          v-for="(choice, index) in addChoice"
+          :key="index"
+          @click="handleAddChoiceClick(choice.action)"
+        >
+          <v-list-item>
+            <!-- <v-icon>{{ item.icon }}</v-icon> -->
+            {{ choice.title }}
+          </v-list-item>
+        </v-list-item>
+      </v-list>
+
+      <AddProductModal
+      v-model="showAddProduct"
+      @close="showAddProduct = false"
+      @done="useAlert"/>
+    </v-row>
+    
     <v-card  
       v-for="category in menu" 
       :key="category.id"
       class="ma-4"
     >
-      <v-card-title class="text-center my-2">{{ category.name }}</v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col v-for="item in category.Products" :key="item.id" cols="12">
-            <v-card 
-              variant="outlined"
-              class="py-4 px-2"
-            >
-              <v-card-title>
-                <v-row>
-                  <v-col>
-                    <v-text-field v-model="item.name" label="品項名稱"></v-text-field>
-                    <v-text-field v-model="item.price" label="價格"></v-text-field>
-                    <v-textarea v-model="item.description" label="產品敘述"></v-textarea>
-                    <v-select 
-                      v-model="item.available" 
-                      label="供應中"
-                      :items="[{'title': '是', 'value': true}, {'title': '否', 'value': false}]"
-                    >
-                    </v-select>
-                    <v-container>
-                      <p class="font-weight-regular text-body-1">客製化選項：</p>
-                      <v-row>
-                        <v-col v-for="option in productOptionStatus[item.id]" :key="option.id" cols="4">
-                          <v-checkbox 
-                            :label="option.name"
-                            v-model="option.status"
-                            @click="toggleOption(option.id, option.name, item.id)"
-                          >
-                          </v-checkbox>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-col>
-                </v-row>
-              </v-card-title>
-              <v-card-actions class="ml-2">
-                <v-btn variant="tonal" color="success" @click="saveChanges(item)">確認更改</v-btn>
-                <v-btn variant="tonal" color="error" @click="cancelChanges()">取消</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card-text>
+      <div v-if="selectedCategory === category.name">
+        <v-card-title class="text-center my-2">{{ category.name }}</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col v-for="item in category.Products" :key="item.id" cols="12">
+              <v-card 
+                variant="outlined"
+                class="py-4 px-2"
+              >
+                <v-card-title>
+                  <v-row>
+                    <v-col>
+                      <v-text-field v-model="item.name" label="品項名稱"></v-text-field>
+                      <v-text-field v-model="item.price" label="價格"></v-text-field>
+                      <v-textarea v-model="item.description" label="產品敘述"></v-textarea>
+                      <v-select 
+                        v-model="item.available" 
+                        label="供應中"
+                        :items="[{'title': '是', 'value': true}, {'title': '否', 'value': false}]"
+                      >
+                      </v-select>
+                      <v-container>
+                        <p class="font-weight-regular text-body-1">客製化選項：</p>
+                        <v-row>
+                          <v-col v-for="option in productOptionStatus[item.id]" :key="option.id" cols="4">
+                            <v-checkbox 
+                              :label="option.name"
+                              v-model="option.status"
+                              @click="toggleOption(option.id, option.name, item.id)"
+                            >
+                            </v-checkbox>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+                </v-card-title>
+                <v-card-actions class="ml-2">
+                  <v-btn variant="tonal" color="success" @click="saveChanges(item)">確認更改</v-btn>
+                  <v-btn variant="tonal" color="error" @click="cancelChanges()">取消</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </div>
     </v-card>
   </v-container>
 </template>
 
 <script setup>
-  import { ref, onMounted, inject, defineEmits } from 'vue';
-  
+  import { computed, ref, onMounted, inject, defineEmits, provide } from 'vue';
+  import AddProductModal from './AddProductModal.vue';
+
   const emit = defineEmits(['showAlert']);
   const user = inject('user');
   const URL = 'http://localhost:8000/api/menu-management/';
@@ -66,6 +96,11 @@
   const optionItems = ref([]);
 
   const productOptionStatus = ref([]); // {product_id, option_id, status}
+  const selectedCategory = ref(null); // 目前選中的類別
+
+  // const showAddCategory = ref(false);
+  const showAddProduct = ref(false);
+  // const showAddOption = ref(false);
   
   const fetchMenu = async () => {
     try {
@@ -160,12 +195,46 @@
       });
     });
   };
+
+  // 計算 category.name 列表
+  const categoryNames = computed(() => {
+    return menu.value.map(category => ({title: category.name, id: category.id}));
+  });
+
+  const addChoice = computed( () => [
+    {title: "品項", action: "product"},
+    {title: "類別", action: "category"},
+    {title: "客製化選項", action: "option"},
+  ]);
+
+  const handleAddChoiceClick = (choice) => {
+    if (choice === "product") {
+      showAddProduct.value = true;
+    }
+    // else if (choice === "category") {
+    //   showAddCategory = true;
+    // }
+    // else {
+    //   showAddOption = true;
+    // }
+  };
+
+  const useAlert = async (type, msg) => {
+    emit('showAlert', type, msg);
+    fetchData();
+  };
+
+  provide('categoryNames', categoryNames);
+  provide('showAddProduct', showAddProduct);
+  provide('URL', URL);
+  provide('user', user);
+  provide('optionItems', optionItems);
   
   onMounted(() => {
     fetchData();
   });
   
-  </script>
+</script>
 
 
 <style scoped>

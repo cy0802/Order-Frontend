@@ -102,7 +102,7 @@
                         >
                             刪除
                         </v-btn>
-                        <p class="my-4"><strong>目前負責人:</strong> {{ order.handler_id || "無" }}</p>
+                        <p class="my-4"><strong>目前負責人:</strong> {{ order.Order.handler ? order.Order.handler.name : "無" }}</p>
                         <!-- 分界線 -->
                         <v-divider
                             v-if="index < orders.length - 1"
@@ -131,7 +131,7 @@
                         >
                         <v-card-text>
                             <p class="my-4"><strong>點餐時間:</strong> {{ formatDate(order.createdAt) }}
-                             / 桌號: {{ order.id }}</p>
+                             / 桌號: {{ order.Order.table_id }}</p>
                             <p class="my-4"><strong>品項:</strong> {{ order.Product.name }}</p>
                             <p class="my-4"><strong>數量:</strong> {{ order.quantity }}</p>
                             <div
@@ -160,7 +160,7 @@
                             >
                             刪除
                             </v-btn>
-                            <p class="my-4"><strong>目前負責人:</strong> {{ order.handler_id || "無" }}</p>
+                            <p class="my-4"><strong>目前負責人:</strong> {{ order.Order.handler ? order.Order.handler.name : "無" }}</p>
                         </v-card-text>
                         </v-card>
                     </v-col>
