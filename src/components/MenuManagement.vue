@@ -26,6 +26,16 @@
       v-model="showAddProduct"
       @close="showAddProduct = false"
       @done="useAlert"/>
+
+      <AddCategoryModal
+      v-model="showAddCategory"
+      @close="showAddCategory = false"
+      @done="useAlert"/>
+
+      <AddOptionTypeModal
+      v-model="showAddOptionType"
+      @close="showAddOptionType = false"
+      @done="useAlert"/>
     </v-row>
     
     <v-card  
@@ -86,6 +96,8 @@
 <script setup>
   import { computed, ref, onMounted, inject, defineEmits, provide } from 'vue';
   import AddProductModal from './AddProductModal.vue';
+  import AddCategoryModal from './AddCategoryModal.vue';
+  import AddOptionTypeModal from './AddOptionTypeModal.vue';
 
   const emit = defineEmits(['showAlert']);
   const user = inject('user');
@@ -98,9 +110,9 @@
   const productOptionStatus = ref([]); // {product_id, option_id, status}
   const selectedCategory = ref(null); // 目前選中的類別
 
-  // const showAddCategory = ref(false);
+  const showAddCategory = ref(false);
   const showAddProduct = ref(false);
-  // const showAddOption = ref(false);
+  const showAddOptionType = ref(false);
   
   const fetchMenu = async () => {
     try {
@@ -211,21 +223,21 @@
     if (choice === "product") {
       showAddProduct.value = true;
     }
-    // else if (choice === "category") {
-    //   showAddCategory = true;
-    // }
-    // else {
-    //   showAddOption = true;
-    // }
+    else if (choice === "category") {
+      showAddCategory.value = true;
+    }
+    else {
+      showAddOptionType.value = true;
+    }
   };
 
-  const useAlert = async (type, msg) => {
+  const useAlert = (type, msg) => {
     emit('showAlert', type, msg);
     fetchData();
   };
 
   provide('categoryNames', categoryNames);
-  provide('showAddProduct', showAddProduct);
+  // provide('showAddProduct', showAddProduct);
   provide('URL', URL);
   provide('user', user);
   provide('optionItems', optionItems);
