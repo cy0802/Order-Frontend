@@ -32,7 +32,12 @@
           Authorization: `Bearer ${user.value.accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({category: newCategory.value}),
+        body: JSON.stringify({
+          category: newCategory.value,
+          userId: user.value.userId,
+          // isAdmin: user.value.isAdmin,
+          // isClerck: user.value.isClerck,
+        }),
       });
       if (!response.ok){ 
         emit('done', 'error', '新增失敗，請稍後再試');
