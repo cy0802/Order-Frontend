@@ -88,17 +88,27 @@ const customerMenuItems = computed(() => [
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);  
 
+const clerkMenuItems = computed( () => [
+  { title: '回首頁', action: '', icon: 'mdi-home' },
+  { title: '訂單狀態', action: 'show-orders', icon: 'mdi-note-outline'},
+  { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
+  { title: '結帳系統', action: 'charge-page', icon: 'mdi-cash-check'},
+  // { title: '管理菜單', action: 'menu-management', icon: 'mdi-note-edit-outline'},
+  { title: '登出', action: 'logout', icon: 'mdi-logout' },
+]);
+
 const adminMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
   { title: '訂單狀態', action: 'show-orders', icon: 'mdi-note-outline'},
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
   { title: '結帳系統', action: 'charge-page', icon: 'mdi-cash-check'},
   { title: '管理菜單', action: 'menu-management', icon: 'mdi-note-edit-outline'},
+  { title: '權限管理', action: 'permission-management', icon: ''}
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
 
 const menuItems = computed(() => {
-  return user.value.isAdmin ? adminMenuItems.value : customerMenuItems.value;
+  return user.value.isAdmin ? adminMenuItems.value : user.value.isClerk ? clerkMenuItems.value : customerMenuItems.value;
 });
 
 const handleMenuItemClick = (item) => {
