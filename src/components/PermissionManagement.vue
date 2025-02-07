@@ -2,13 +2,164 @@
   <v-container>
     <h2 class="text-center my-4">權限管理</h2>
 
+    <!-- 動作按鈕區塊 -->
+    <v-row class="mb-4">
+      <v-btn
+        v-for="(choice, index) in actionChoices"
+        :key="index"
+        :class="{ 'not-working-btn': !choosenUser.user?.id }"
+        class="mx-2"
+        @click="handleActionClick(choice.action)"
+      >
+        {{ choice.title }}
+      </v-btn>
+    </v-row>
+
+    <!-- 更改權限彈窗 -->
+    <SwitchPermissionModal
+      v-model="showSwitchPermission" 
+      @close="showSwitchPermission = false" 
+      @done="useAlert" />
+
+    <!-- 停權確認彈窗 -->
+    <v-dialog max-width="300" v-model="showTerminateUser">
+      <v-card class="pa-4">
+        <v-col>
+          <p class="text-center">確定？</p>
+        </v-col>
+        <v-card-actions>
+          <v-btn variant="tonal" color="success" class="mx-2">是</v-btn>
+          <v-btn variant="tonal" color="error" class="mx-2" @click="showTerminateUser = false">否</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 搜尋欄 -->
+    <v-card class="pa-4 mt-4">
+      <v-row>
+        <v-col cols="5">
+          <v-text-field v-model="targetUser.name" label="使用者名稱" dense outlined></v-text-field>
+        </v-col>
+        <v-col cols="5">
+          <v-text-field v-model="targetUser.email" label="使用者 Email" dense outlined></v-text-field>
+        </v-col>
+        <v-col cols="2" class="d-flex align-center">
+          <v-btn color="primary" @click="searchUser">搜尋</v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
+
+    <!-- 使用者清單 -->
+    <v-card class="mt-4 pa-4">
+      <v-container>
+        <v-row
+          v-for="(candidate, index) in candidateUsers"
+          :key="index"
+          class="user-row align-center"
+          :class="{ 'selected-user': choosenUser.user?.id === candidate.id }"
+        >
+          <v-col cols="4"><p>{{ candidate.name }}</p></v-col>
+          <v-col cols="4"><p>{{ candidate.email }}</p></v-col>
+          <v-col cols="2"><p>{{ candidate.permission }}</p></v-col>
+          <v-col cols="2">
+            <v-btn color="success" @click="handleChooseUser(candidate, index)">選擇</v-btn>
+          </v-col>
+          <v-divider class="my-2"></v-divider>
+        </v-row>
+      </v-container>
+    </v-card>
   </v-container>
 </template>
 
 <script setup>
+  import {ref, defineEmits, inject, provide} from 'vue';
+  import SwitchPermissionModal from './SwitchPermissionModal.vue';
+
+  const URL = 'http://localhost:8000/api/permission-management/';
+  const emit = defineEmits(['showAlert']);
+  const user = inject('user');
+  const showSwitchPermission = ref(false);
+  const showTerminateUser = ref(false);
+
   const actionChoices = ref([
-    {title: '變更使用者身分', action: 'switch-permission'},
-    {title: '刪除使用者', action: 'remove-user'},
-    {title: '查詢使用者資料', action: 'search-user'},
+    {title: '變更使用者身分', action: 'switchPermission'},
+    {title: '停權 / 復權', action: 'terminateUser'},
+    {title: '查看使用者資料', action: 'getUserData'},
   ]);
+
+  const targetUser = ref({
+    name: '',
+    email: '',
+  });
+
+  const choosenUser = ref({user: null, index: -1});  // index 是cadidateUsers 的 index，方便更新前端用的：P
+
+  const candidateUsers = ref([]);
+
+  provide('URL', URL);
+  provide('user', user);
+  provide('choosenUser', choosenUser);
+  provide('candidateUsers', candidateUsers);
+
+  const searchUser = async() => {
+    choosenUser.value = { user: null, index: -1 };
+    try {
+      const response = await fetch(`${URL}search-user`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.value.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: targetUser.value.name,
+          email: targetUser.value.email
+        }),
+      });
+
+      if(!response.ok) {
+        emit('showAlert', 'error', 'Failed to search user');
+      }
+
+      candidateUsers.value = await response.json();
+    } catch(error) {
+      console.error('Error saerching user: ', error);
+    }
+  }
+
+  const handleActionClick = (action) => {
+    if(action === 'switchPermission') {
+      showSwitchPermission.value = true;
+    }
+    else if (action === 'terminateUser') {
+      showTerminateUser.value = true;
+    }
+  }
+
+  const handleChooseUser = (canidate, index) => {
+    choosenUser.value.user = canidate;
+    choosenUser.value.index = index;
+  }
+
+  const useAlert = (type, msg) => {
+    emit('showAlert', type, msg);
+  }
+
 </script>
+
+<style scoped>
+.selected-user {
+  /* border: 2px solid green; */
+  background-color: #e6ffe6;
+}
+
+.not-working-btn {
+  color: lightgray !important;
+  pointer-events: none; /* 禁止滑鼠點擊 */
+  cursor: default; /* 滑鼠移上去時不提示可點擊 */
+}
+
+.user-row {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+</style>

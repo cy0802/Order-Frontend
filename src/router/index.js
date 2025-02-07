@@ -6,6 +6,7 @@ import CouponPage from '@/components/CouponPage.vue';
 import ShowOrder from '../components/ShowOrder.vue'
 import MenuManagement from '../components/MenuManagement.vue'
 import ChargePage from '../components/ChargePage.vue'
+import PermissionManagement from '../components/PermissionManagement.vue';
 
 const routes = [
   { 
@@ -61,6 +62,15 @@ const routes = [
     //   userId: route.query.userId,
     //   userToken: route.query.userToken
     // })
+  },
+  {
+    path: '/permission-management',
+    name: 'PermissionManagement',
+    component: PermissionManagement,
+    props: route => ({
+      userId: route.query.userId,
+      userToken: route.query.userToken
+    })
   }
 ];
 

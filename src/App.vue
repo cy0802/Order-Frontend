@@ -103,7 +103,7 @@ const adminMenuItems = computed(() => [
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
   { title: '結帳系統', action: 'charge-page', icon: 'mdi-cash-check'},
   { title: '管理菜單', action: 'menu-management', icon: 'mdi-note-edit-outline'},
-  { title: '權限管理', action: 'permission-management', icon: ''}
+  { title: '權限管理', action: 'permission-management', icon: 'mdi-account-key'},
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
 
