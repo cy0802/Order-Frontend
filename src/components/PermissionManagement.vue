@@ -25,10 +25,11 @@
     <v-dialog max-width="300" v-model="showTerminateUser">
       <v-card class="pa-4">
         <v-col>
-          <p class="text-center">確定？</p>
+          <p class="text-center">{{ choosenUser.user?.isTerminated ? '確定要恢復此帳號嗎？' :
+                                    '確定要停用此帳號嗎？' }}</p>
         </v-col>
         <v-card-actions>
-          <v-btn variant="tonal" color="success" class="mx-2">是</v-btn>
+          <v-btn variant="tonal" color="success" class="mx-2" @click="terminateUser">是</v-btn>
           <v-btn variant="tonal" color="error" class="mx-2" @click="showTerminateUser = false">否</v-btn>
         </v-card-actions>
       </v-card>
@@ -58,12 +59,13 @@
           class="user-row align-center"
           :class="{ 'selected-user': choosenUser.user?.id === candidate.id }"
         >
-          <v-col cols="4"><p>{{ candidate.name }}</p></v-col>
+          <v-col cols="2"><p>{{ candidate.name }}</p></v-col>
           <v-col cols="4"><p>{{ candidate.email }}</p></v-col>
           <v-col cols="2"><p>{{ candidate.permission }}</p></v-col>
           <v-col cols="2">
             <v-btn color="success" @click="handleChooseUser(candidate, index)">選擇</v-btn>
           </v-col>
+          <v-col v-if="candidate?.isTerminated" cols="2"><p color="red">已停權</p></v-col>
           <v-divider class="my-2"></v-divider>
         </v-row>
       </v-container>
@@ -138,6 +140,35 @@
   const handleChooseUser = (canidate, index) => {
     choosenUser.value.user = canidate;
     choosenUser.value.index = index;
+  }
+
+  const terminateUser = async () => {
+    if (choosenUser.value.user.id === user.value.userId) {
+      console.error('current user try to terminate itself', user.userId);
+      emit('showAlert', 'error', '您無法對自己的帳號進行操作');
+      return ;
+    }
+    try {
+      const response = await fetch(`${URL}terminate-user`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${user.value.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({id: choosenUser.value.user.id, 
+          isTerminated: !choosenUser.value.user.isTerminated,
+        }),
+      });
+      if(response.ok) {
+        emit('showAlert', 'success', '操作成功');
+      }
+      showTerminateUser.value = false;
+      candidateUsers.value[choosenUser.value.index].isTerminated = !choosenUser.value.user.isTerminated;
+    }
+    catch (error) {
+      console.error("fail to terminate user");
+      emit('showAlert', 'error', '操作失敗，請稍後再試')
+    }
   }
 
   const useAlert = (type, msg) => {

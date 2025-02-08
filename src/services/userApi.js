@@ -22,7 +22,11 @@ export const login = async (email, password, accessToken) => {
   } catch (error) {
     if (error.response && error.response.status === 401) {
       err = '帳號或密碼錯誤';
-    } else {
+    } 
+    else if(error.response?.status === 403) {
+      err = '此帳號已被停權';
+    }
+    else {
       console.error(error);
     }
   }
