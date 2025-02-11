@@ -35,6 +35,11 @@
       </v-card>
     </v-dialog>
 
+    <!-- get user data 視窗 -->
+    <GetUserData
+      v-model="showGetUserData"
+      @close="showGetUserData=false" />
+
     <!-- 搜尋欄 -->
     <v-card class="pa-4 mt-4">
       <v-row>
@@ -53,6 +58,12 @@
     <!-- 使用者清單 -->
     <v-card class="mt-4 pa-4">
       <v-container>
+        <v-row>
+          <v-col cols="2"><p>使用者名稱</p></v-col>
+          <v-col cols="4"><p>email</p></v-col>
+          <v-col cols="2"><p>權限</p></v-col>
+        </v-row>
+        <v-divider class="my-2"></v-divider>
         <v-row
           v-for="(candidate, index) in candidateUsers"
           :key="index"
@@ -61,7 +72,9 @@
         >
           <v-col cols="2"><p>{{ candidate.name }}</p></v-col>
           <v-col cols="4"><p>{{ candidate.email }}</p></v-col>
-          <v-col cols="2"><p>{{ candidate.permission }}</p></v-col>
+          <v-col cols="2"><p>{{ candidate.permission === 'clerk' ? '店員' :
+                                candidate.permission === 'customer' ? '顧客' :
+                                candidate.permission === 'admin' ? '管理員' : '' }}</p></v-col>
           <v-col cols="2">
             <v-btn color="success" @click="handleChooseUser(candidate, index)">選擇</v-btn>
           </v-col>
@@ -76,12 +89,14 @@
 <script setup>
   import {ref, defineEmits, inject, provide} from 'vue';
   import SwitchPermissionModal from './SwitchPermissionModal.vue';
+  import GetUserData from './GetUserData.vue';
 
   const URL = 'http://localhost:8000/api/permission-management/';
   const emit = defineEmits(['showAlert']);
   const user = inject('user');
   const showSwitchPermission = ref(false);
   const showTerminateUser = ref(false);
+  const showGetUserData = ref(false);
 
   const actionChoices = ref([
     {title: '變更使用者身分', action: 'switchPermission'},
@@ -102,6 +117,55 @@
   provide('user', user);
   provide('choosenUser', choosenUser);
   provide('candidateUsers', candidateUsers);
+
+  // for get user data
+  const userHistory = ref([]);
+  const userCoupon = ref([]);
+
+  provide('userHistory', userHistory);
+  provide('userCoupon', userCoupon);
+
+  const fetchUserData = async() => {
+    try {
+      const response = await fetch(`${URL}admin-get-user-history`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.value.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: choosenUser.value.user.id,
+        }),
+      });
+
+      if(!response.ok) {
+        emit('showAlert', 'error', '查詢歷史訂單失敗');
+      }
+
+      userHistory.value = await response.json();
+
+      const response2 = await fetch(`${URL}admin-get-user-coupon`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.value.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: choosenUser.value.user.id,
+        }),
+      });
+
+      if(!response2.ok) {
+        emit('showAlert', 'error', '查詢折價券失敗');
+      }
+
+      userCoupon.value = await response2.json();
+
+    } catch (error) {
+      console.error("fail to det user data: ", error);
+    }
+  }
+  ////
 
   const searchUser = async() => {
     choosenUser.value = { user: null, index: -1 };
@@ -134,6 +198,10 @@
     }
     else if (action === 'terminateUser') {
       showTerminateUser.value = true;
+    }
+    else if(action === 'getUserData') {
+      showGetUserData.value = true;
+      fetchUserData();
     }
   }
 

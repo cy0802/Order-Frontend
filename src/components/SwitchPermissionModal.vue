@@ -38,7 +38,7 @@
 
   const permissionTitle = computed(() => 
     choosenUser.value.user.permission === 'clerk' ? '店員' :
-    choosenUser.value.user.permission === 'costumer' ? '顧客' :
+    choosenUser.value.user.permission === 'customer' ? '顧客' :
     choosenUser.value.user.permission === 'admin' ? '管理員' : '');
 
   const switchPermission = async () => {
