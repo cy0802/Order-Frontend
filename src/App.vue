@@ -24,7 +24,7 @@
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
-          <v-list>
+          <v-list max-height="400px">
             <v-list-item
               v-for="(item, index) in menuItems"
               :key="index"
@@ -103,6 +103,7 @@ const adminMenuItems = computed(() => [
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
   { title: '結帳系統', action: 'charge-page', icon: 'mdi-cash-check'},
   { title: '管理菜單', action: 'menu-management', icon: 'mdi-note-edit-outline'},
+  { title: '發送折價券', action: 'coupon-distribution-page', icon: 'coupon-distribution-page'},
   { title: '權限管理', action: 'permission-management', icon: 'mdi-account-key'},
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);
