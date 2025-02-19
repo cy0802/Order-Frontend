@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Product, ProductCategory, ProductOptionType, ProductOption} from '../types/Product';
 
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_BACKEND_URL,
+  baseURL: `http://${window.location.hostname}`,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -191,7 +191,7 @@ import { ref, computed, onMounted, inject, defineEmits } from "vue";
 
 const emit = defineEmits(['showAlert']);
 
-const URL = "http://localhost:8000";
+const URL = `http://${window.location.hostname}`;
 const user = inject('user');
 
 const displayMode = ref("grouped");
