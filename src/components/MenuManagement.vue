@@ -44,7 +44,7 @@
       class="ma-4"
     >
       <div v-if="selectedCategory === category.name">
-        <v-card-title class="text-center my-2">{{ category.name }}</v-card-title>
+        <!-- <v-card-title class="text-center my-2">{{ category.name }}</v-card-title> -->
         <v-card-text>
           <v-row>
             <v-col v-for="item in category.Products" :key="item.id" cols="12">
