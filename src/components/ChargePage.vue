@@ -67,7 +67,7 @@ import axios from "axios";
 import OrderDetailsModal from "./OrderDetailsModal.vue";
 const emit = defineEmits(['showAlert']);
 
-const URL = "http://localhost:8000/api/charge-page/";
+const URL = `http://${window.location.hostname}/api/charge-page/`;
 
 const user = inject('user');
 const orders = ref([]); // 從後端獲取的所有訂單
