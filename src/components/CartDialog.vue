@@ -48,7 +48,7 @@
         <!-- TODO: Memorize maximum table id -->
         <v-combobox
           label="您的桌號"
-          :items="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+          :items="tableNumbers"
           v-model="tableId"
           variant="outlined"
           class="mt-4 ml-2"
@@ -92,6 +92,7 @@ import { addOrder } from '@/services/orderApi.js';
 
 const props = defineProps(['products']);
 const user = inject('user');
+const metadata = inject('metadata');
 const emit = defineEmits(['orderSuccess', 'orderError']);
 const orderItems = defineModel("orderItems", { type: Array });
 
@@ -101,6 +102,10 @@ const totalPrice = ref(0);
 const tableId = ref(null);
 const selectedCoupons = ref([]);
 const productsFlat = ref([]);
+
+const tableNumbers = computed(() => {
+  return Array.from({ length: metadata.value.tableNumber }, (_, i) => i + 1);
+});
 
 const coupons = computed(() => {
   return user.value.coupons.filter(coupon => !coupon.used);
