@@ -1,5 +1,8 @@
 <template>
-  <v-app>
+  
+  <Global_Website v-if="global_page" @showAlert="showAlert" />
+
+  <v-app v-if="!global_page">
     <v-app-bar app color="primary">
       <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">王品集團</v-app-bar-title>
       <v-spacer></v-spacer>
@@ -65,6 +68,7 @@
 <script setup>
 import LoginDialog from './components/LoginDialog.vue';
 import RegisterDialog from './components/RegisterDialog.vue';
+import Global_Website from './components/Global_Website.vue';
 import { RouterView, useRouter } from 'vue-router';
 import { ref, provide, onMounted } from 'vue';
 import User from './types/User.js';
@@ -80,6 +84,10 @@ const menu = ref(false);
 const router = useRouter();
 
 const dropdown = ref(false);
+
+const global_page = computed(() => {
+  return window.location.hostname === 'global_website.example.com';
+});
 
 const customerMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
