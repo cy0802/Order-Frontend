@@ -4,7 +4,7 @@
 
   <v-app v-if="!global_page">
     <v-app-bar app color="primary">
-      <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">王品集團</v-app-bar-title>
+      <v-app-bar-title @click="handleMenuItemClick(menuItems[0])">{{ metadata.name }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <RegisterDialog 
         @register="handleRegister"
@@ -68,11 +68,16 @@
 <script setup>
 import LoginDialog from './components/LoginDialog.vue';
 import RegisterDialog from './components/RegisterDialog.vue';
+
 import Global_Website from './components/Global_Website.vue';
+
+import Metadata from './types/Metadata.js';
+
 import { RouterView, useRouter } from 'vue-router';
 import { ref, provide, onMounted } from 'vue';
 import User from './types/User.js';
 import { login, register } from './services/userApi.js';
+import { getMetadata } from './services/metadataApi.js';
 import { computed } from 'vue';
 
 const user = ref(new User());
@@ -80,6 +85,7 @@ const alert = ref(false);
 const errorMsg = ref(null);
 const alertType = ref('error');
 const menu = ref(false);
+const metadata = ref(new Metadata());
 
 const router = useRouter();
 
@@ -138,11 +144,22 @@ const showAlert = (type, msg) => {
   }, 4000); // Close after 3 seconds
 };
 
+const fetchMetadata = async () => {
+  const { err, metadata: fetchedMetadata } = await getMetadata();
+  if (err) {
+    showAlert('error', err);
+  } else {
+    metadata.value = fetchedMetadata;
+  }
+};
+
 onMounted(() => {
   user.value.loadUser();
+  fetchMetadata();
 });
 
 provide('user', user);
+provide('metadata', metadata);
 
 const handleLogin = async (email, password) => {
   const { err, loginedUser } = await login(email, password);
