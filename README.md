@@ -24,18 +24,6 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
-## Abbout gloobal website
-原諒我用中文：0
-### global_web site 網址
-global_website.example.com
-需要先把這個網址加進C:\Windows\System32\drivers\etc
-
-### 登入/註冊global user
-在global_website.example.com可以選註冊或登入
-註冊後會建一個tenant database，在tenat 裡已經加好一個admin user，
-接著把tenant.example.com加進C:\Windows\System32\drivers\etc\host
-就可以去tenant.example.com 用註冊global user 的email 跟password登入
-然後使用者就可以用這支admin user 建自己的菜單(理論上ㄏ)
 
 ## Abbout gloobal website
 原諒我用中文：0
