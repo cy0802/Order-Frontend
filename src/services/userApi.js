@@ -17,7 +17,7 @@ export const login = async (email, password, accessToken) => {
       { headers: { "Authorization": "Bearer " + accessToken }}
     );
     const { id, name, token, phone, permission } = response.data;
-    loginedUser = new User(id, name, phone, email, permission === 'admin', permission === 'clerk', token);
+    loginedUser = new User(id, name, phone, email, false, permission === 'admin', permission === 'clerk', token);
     loginedUser.storeUser();
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -39,7 +39,7 @@ export const register = async (email, name, phone, password) => {
   try {
     const response = await apiClient.post('/api/register', { name, email, password, phone });
     const { id, token, permission } = response.data;
-    loginedUser = new User(id, name, phone, email, permission === 'admin', permission === 'clerk', token);
+    loginedUser = new User(id, name, phone, email, false, permission === 'admin', permission === 'clerk', token);
     loginedUser.storeUser();
   } catch (error) {
     if (error.response && error.response.status === 400) {

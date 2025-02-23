@@ -5,6 +5,7 @@ export default class User {
     userName = null, 
     userPhone = null, 
     userEmail = null, 
+    isGlobal = null,
     isAdmin = false, 
     isClerk = false,
     accessToken = null
@@ -14,6 +15,7 @@ export default class User {
     this.accessToken = accessToken;
     this.userPhone = userPhone;
     this.userEmail = userEmail;
+    this.isGlobal = isGlobal;
     this.isAdmin = isAdmin;
     this.isClerk = isClerk;
     this.loggedIn = !!userId;
@@ -21,7 +23,9 @@ export default class User {
     if (this.userId != null) {
       // token exprire in 3 hours
       this.tokenExprire = new Date().getTime() + 3 * 60 * 60 * 1000;
-      this.loadUserCoupons();
+      if(!this.isGlobal) {
+        this.loadUserCoupons();
+      }
     } else {
       this.tokenExprire = null;
     }
@@ -34,6 +38,7 @@ export default class User {
     localStorage.setItem('accessToken', this.accessToken);
     localStorage.setItem('userPhone', this.userPhone);
     localStorage.setItem('userEmail', this.userEmail);
+    localStorage.setItem('isGlobal', this.isGlobal);
     localStorage.setItem('isAdmin', this.isAdmin);
     localStorage.setItem('isClerk', this.isClerk);
     localStorage.setItem('tokenExprire', this.tokenExprire);
@@ -68,11 +73,14 @@ export default class User {
     this.accessToken = localStorage.getItem('accessToken');
     this.userPhone = localStorage.getItem('userPhone');
     this.userEmail = localStorage.getItem('userEmail');
+    this.isGlobal = localStorage.getItem('isGlobal') == 'true' ? true : false;
     this.isAdmin = localStorage.getItem('isAdmin') == 'true' ? true : false;
     this.isClerk = localStorage.getItem('isClerk') == 'true' ? true : false;
     this.tokenExprire = localStorage.getItem('tokenExprire');
     this.loggedIn = true;
-    this.loadUserCoupons();
+    if(!this.isGlobal) {
+      this.loadUserCoupons();
+    }
   }
 
   logout() {
@@ -81,6 +89,7 @@ export default class User {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('isGlobal');
     localStorage.removeItem('isAdmin');
     localStorage.removeItem('isClerk');
     this.userId = null;
@@ -88,6 +97,7 @@ export default class User {
     this.accessToken = null;
     this.userPhone = null;
     this.userEmail = null;
+    this.isGlobal = false;
     this.isAdmin = false;
     this.isClerk = false;
     this.loggedIn = false;
