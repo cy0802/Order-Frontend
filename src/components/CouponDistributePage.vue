@@ -114,7 +114,7 @@
 <script setup>
   import { ref, inject, defineEmits, computed } from 'vue'
 
-  const URL = 'http://localhost:8000/api/coupons/'
+  const URL = `http://${window.location.hostname}/api/coupons/`
   const emit = defineEmits(['showAlert'])
   const user = inject('user')
 
