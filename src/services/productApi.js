@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Product, ProductCategory, ProductOptionType, ProductOption} from '../types/Product';
 
 const apiClient = axios.create({
-  baseURL: `http://${window.location.hostname}`,
+  baseURL: `https://${window.location.hostname}`,
   headers: {
     'Content-Type': 'application/json',
   },

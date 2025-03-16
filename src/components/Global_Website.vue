@@ -46,7 +46,7 @@
           <v-card-title v-if="user.loggedIn" class="h6">店家資料</v-card-title>
           <v-col v-if="user.loggedIn">
             <p>hostname: {{ hostname }}</p>
-            <p>您的點餐系統網址：http://{{ hostname }}.example.com</p>
+            <p>您的點餐系統網址：https://{{ hostname }}.example.com</p>
           </v-col>
           <v-text-field v-if="user.loggedIn" v-model="brandName" label="店名" required></v-text-field>
           <v-text-field v-if="user.loggedIn" v-model="tableNum" label="桌數" required></v-text-field>
@@ -64,7 +64,7 @@ import GlobalRegisterDialog from './GlobalRegisterDialog.vue';
 
 const emit = defineEmits(['showAlert']);
 const user = inject('user');
-const URL = `http://${window.location.hostname}/api/tenant/`;
+const URL = `https://${window.location.hostname}/api/tenant/`;
 
 const brandName = ref('');
 const tableNum = ref(1);

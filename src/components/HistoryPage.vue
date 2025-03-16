@@ -52,7 +52,7 @@ const emit = defineEmits(['showAlert']);
 
 const fetchOrderHistory = async () => {
   try {
-    const response = await axios.get(`http://${window.location.hostname}/api/orders/history`, {
+    const response = await axios.get(`https://${window.location.hostname}/api/orders/history`, {
       headers: {
         Authorization: `Bearer ${user.value.accessToken}`,
       }
