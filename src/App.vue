@@ -92,7 +92,7 @@ const router = useRouter();
 const dropdown = ref(false);
 
 const global_page = computed(() => {
-  return window.location.hostname === 'global_website.example.com';
+  return window.location.hostname.split('.')[0] === 'global-website';
 });
 
 const customerMenuItems = computed(() => [
