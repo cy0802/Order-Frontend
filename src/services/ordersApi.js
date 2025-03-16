@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000/api/charge-page/';
+const BASE_URL = 'https://localhost:3000/api/charge-page/';
 
 // 獲取所有訂單資料
 export const fetchOrdersAPI = async (accessToken) => {
