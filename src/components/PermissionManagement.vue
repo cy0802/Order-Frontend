@@ -91,7 +91,7 @@
   import SwitchPermissionModal from './SwitchPermissionModal.vue';
   import GetUserData from './GetUserData.vue';
 
-  const URL = `https://${window.location.hostname}/api/permission-management/`;
+  const URL = `${window.location.protocol}//${window.location.hostname}/api/permission-management/`;
   const emit = defineEmits(['showAlert']);
   const user = inject('user');
   const showSwitchPermission = ref(false);
