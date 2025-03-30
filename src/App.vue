@@ -99,6 +99,7 @@ const customerMenuItems = computed(() => [
   { title: '回首頁', action: '', icon: 'mdi-home' },
   { title: '歷史訂單', action: 'history', icon: 'mdi-history' },
   { title: '優惠卷', action: 'coupons', icon: 'mdi-ticket-percent-outline'},
+  { title: '尋求幫助', action: 'customer-service', icon: 'mdi-face-agent' },
   { title: '登出', action: 'logout', icon: 'mdi-logout' },
 ]);  
 
