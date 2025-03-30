@@ -64,7 +64,7 @@ import GlobalRegisterDialog from './GlobalRegisterDialog.vue';
 
 const emit = defineEmits(['showAlert']);
 const user = inject('user');
-const URL = `https://${window.location.hostname}/api/tenant/`;
+const URL = `${window.location.protocol}//${window.location.hostname}/api/tenant/`;
 
 const brandName = ref('');
 const tableNum = ref(1);

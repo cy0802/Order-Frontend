@@ -2,7 +2,7 @@ import axios from 'axios';
 import Coupon from '@/types/Coupon.js';
 
 const apiClient = axios.create({
-  baseURL: `https://${window.location.hostname}`,
+  baseURL: `${window.location.protocol}//${window.location.hostname}`,
   headers: {
     'Content-Type': 'application/json',
   },

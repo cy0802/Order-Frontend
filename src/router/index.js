@@ -8,6 +8,7 @@ import MenuManagement from '../components/MenuManagement.vue'
 import ChargePage from '../components/ChargePage.vue'
 import PermissionManagement from '../components/PermissionManagement.vue';
 import CouponDistributePage from '../components/CouponDistributePage.vue';
+import CustomerService from '../components/CustomerService.vue';
 
 const routes = [
   { 
@@ -77,6 +78,15 @@ const routes = [
     path: '/coupon-distribution-page',
     name: 'CouponDistributionPage',
     component: CouponDistributePage,
+    props: route => ({
+      userId: route.query.userId,
+      userToken: route.query.userToken
+    })
+  },
+  {
+    path: '/customer-service',
+    name: 'CustomerService',
+    component: CustomerService,
     props: route => ({
       userId: route.query.userId,
       userToken: route.query.userToken

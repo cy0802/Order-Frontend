@@ -2,7 +2,7 @@ import axios from 'axios';
 import Metadata from '@/types/Metadata';
 
 const apiClient = axios.create({
-  baseURL: `https://${window.location.hostname}`,
+  baseURL: `${window.location.protocol}//${window.location.hostname}`,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -101,7 +101,7 @@
 
   const emit = defineEmits(['showAlert']);
   const user = inject('user');
-  const URL = `https://${window.location.hostname}/api/menu-management/`;
+  const URL = `${window.location.protocol}//${window.location.hostname}/api/menu-management/`;
 
   const menu = ref([]);
   const allOptions = ref([]);
