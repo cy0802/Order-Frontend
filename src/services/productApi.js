@@ -21,7 +21,7 @@ export const getProducts = async () => {
           });
           return new ProductOptionType(optionType.id, optionType.name, options);
         });
-        return new Product(product.id, product.name, product.description, product.price, optionTypes);
+        return new Product(product.id, product.name, product.description, product.price, product.image, optionTypes);
       });
       return new ProductCategory(category.category_id, category.category, products);
     });
