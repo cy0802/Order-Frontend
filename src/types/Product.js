@@ -16,6 +16,7 @@ export class Product {
     name = null,
     description = null,
     price = null,
+    image = null,
     options = []
   ) {
     this.id = id;
@@ -23,6 +24,7 @@ export class Product {
     this.description = description;
     this.price = price;
     this.options = options;
+    this.image = image;
     this.quantity = 0;
   }
 }
